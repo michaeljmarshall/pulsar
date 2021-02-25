@@ -217,7 +217,9 @@ public class ServerCnx extends PulsarHandler implements TransportCnx {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
-        log.info("New connection from {}", remoteAddress);
+        if (log.isDebugEnabled()) {
+            log.debug("New connection from {}", remoteAddress);
+        }
         this.ctx = ctx;
         this.commandSender = new PulsarCommandSenderImpl(getBrokerService().getInterceptor(), this);
     }
@@ -226,7 +228,9 @@ public class ServerCnx extends PulsarHandler implements TransportCnx {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         super.channelInactive(ctx);
         isActive = false;
-        log.info("Closed connection from {}", remoteAddress);
+        if (log.isDebugEnabled()) {
+            log.debug("Closed connection from {}", remoteAddress);
+        }
         BrokerInterceptor brokerInterceptor = getBrokerService().getInterceptor();
         if (brokerInterceptor != null) {
             brokerInterceptor.onConnectionClosed(this);
@@ -605,7 +609,9 @@ public class ServerCnx extends PulsarHandler implements TransportCnx {
                                 remoteAddress, authRole, newAuthRole);
                         ctx.close();
                     } else {
-                        log.info("[{}] Refreshed authentication credentials for role {}", remoteAddress, authRole);
+                        if (log.isDebugEnabled()) {
+                            log.debug("[{}] Refreshed authentication credentials for role {}", remoteAddress, authRole);
+                        }
                     }
                 }
             }
@@ -635,7 +641,7 @@ public class ServerCnx extends PulsarHandler implements TransportCnx {
             // Credentials are still valid. Nothing to do at this point
             return;
         } else if (originalPrincipal != null && originalAuthState == null) {
-            log.info(
+            log.warn(
                     "[{}] Cannot revalidate user credential when using proxy and"
                             + " not forwarding the credentials. Closing connection",
                     remoteAddress);
@@ -643,8 +649,10 @@ public class ServerCnx extends PulsarHandler implements TransportCnx {
         }
 
         ctx.executor().execute(SafeRun.safeRun(() -> {
-            log.info("[{}] Refreshing authentication credentials for originalPrincipal {} and authRole {}",
-                    remoteAddress, originalPrincipal, this.authRole);
+            if (log.isDebugEnabled()) {
+                log.debug("[{}] Refreshing authentication credentials for originalPrincipal {} and authRole {}",
+                        remoteAddress, originalPrincipal, this.authRole);
+            }
 
             if (!supportsAuthenticationRefresh()) {
                 log.warn("[{}] Closing connection because client doesn't support auth credentials refresh",
@@ -983,7 +991,7 @@ public class ServerCnx extends PulsarHandler implements TransportCnx {
                                         consumers.remove(consumerId, consumerFuture);
                                     }
 
-                                }) //
+                                })
                                 .exceptionally(exception -> {
                                     if (exception.getCause() instanceof ConsumerBusyException) {
                                         if (log.isDebugEnabled()) {
@@ -1122,7 +1130,9 @@ public class ServerCnx extends PulsarHandler implements TransportCnx {
                             }
                         }
 
-                        log.info("[{}][{}] Creating producer. producerId={}", remoteAddress, topicName, producerId);
+                        if (log.isDebugEnabled()) {
+                            log.debug("[{}][{}] Creating producer. producerId={}", remoteAddress, topicName, producerId);
+                        }
 
                         service.getOrCreateTopic(topicName.toString()).thenAccept((Topic topic) -> {
                             // Before creating producer, check if backlog quota exceeded
@@ -1179,7 +1189,9 @@ public class ServerCnx extends PulsarHandler implements TransportCnx {
                                 topic.addProducer(producer, producerQueuedFuture).thenAccept(newTopicEpoch -> {
                                     if (isActive()) {
                                         if (producerFuture.complete(producer)) {
-                                            log.info("[{}] Created new producer: {}", remoteAddress, producer);
+                                            if (log.isDebugEnabled()) {
+                                                log.debug("[{}] Created new producer: {}", remoteAddress, producer);
+                                            }
                                             commandSender.sendProducerSuccessResponse(requestId, producerName,
                                                     producer.getLastSequenceId(), producer.getSchemaVersion(),
                                                     newTopicEpoch, true /* producer is ready now */);
@@ -1194,11 +1206,11 @@ public class ServerCnx extends PulsarHandler implements TransportCnx {
                                         }
                                         } else {
                                             producer.closeNow(true);
-                                        log.info("[{}] Cleared producer created after connection was closed: {}",
-                                                remoteAddress, producer);
-                                        producerFuture.completeExceptionally(
-                                                new IllegalStateException(
-                                                        "Producer created after connection was closed"));
+                                            log.info("[{}] Cleared producer created after connection was closed: {}",
+                                                    remoteAddress, producer);
+                                            producerFuture.completeExceptionally(
+                                                    new IllegalStateException(
+                                                            "Producer created after connection was closed"));
                                         }
 
                                         producers.remove(producerId, producerFuture);
@@ -1503,13 +1515,17 @@ public class ServerCnx extends PulsarHandler implements TransportCnx {
 
         // Proceed with normal close, the producer
         Producer producer = producerFuture.getNow(null);
-        log.info("[{}][{}] Closing producer on cnx {}. producerId={}",
-                 producer.getTopic(), producer.getProducerName(), remoteAddress, producerId);
+        if (log.isDebugEnabled()) {
+            log.debug("[{}][{}] Closing producer on cnx {}. producerId={}",
+                    producer.getTopic(), producer.getProducerName(), remoteAddress, producerId);
+        }
 
         producer.close(true).thenAccept(v -> {
-            log.info("[{}][{}] Closed producer on cnx {}. producerId={}",
-                     producer.getTopic(), producer.getProducerName(),
-                     remoteAddress, producerId);
+            if (log.isDebugEnabled()) {
+                log.debug("[{}][{}] Closed producer on cnx {}. producerId={}",
+                        producer.getTopic(), producer.getProducerName(),
+                        remoteAddress, producerId);
+            }
             commandSender.sendSuccessResponse(requestId);
             producers.remove(producerId, producerFuture);
         });
@@ -1518,7 +1534,9 @@ public class ServerCnx extends PulsarHandler implements TransportCnx {
     @Override
     protected void handleCloseConsumer(CommandCloseConsumer closeConsumer) {
         checkArgument(state == State.Connected);
-        log.info("[{}] Closing consumer: consumerId={}", remoteAddress, closeConsumer.getConsumerId());
+        if (log.isDebugEnabled()) {
+            log.debug("[{}] Closing consumer: consumerId={}", remoteAddress, closeConsumer.getConsumerId());
+        }
 
         long requestId = closeConsumer.getRequestId();
         long consumerId = closeConsumer.getConsumerId();
@@ -1554,7 +1572,9 @@ public class ServerCnx extends PulsarHandler implements TransportCnx {
             consumer.close();
             consumers.remove(consumerId, consumerFuture);
             commandSender.sendSuccessResponse(requestId);
-            log.info("[{}] Closed consumer, consumerId={}", remoteAddress, consumerId);
+            if (log.isDebugEnabled()) {
+                log.debug("[{}] Closed consumer, consumerId={}", remoteAddress, consumerId);
+            }
         } catch (BrokerServiceException e) {
             log.warn("[{]] Error closing consumer {} : {}", remoteAddress, consumer, e);
             commandSender.sendErrorResponse(requestId, BrokerServiceException.getClientErrorCode(e), e.getMessage());
@@ -1939,7 +1959,9 @@ public class ServerCnx extends PulsarHandler implements TransportCnx {
                         }
                         ctx.writeAndFlush(Commands.newAddSubscriptionToTxnResponse(requestId,
                                 txnID.getLeastSigBits(), txnID.getMostSigBits()));
-                        log.info("handle add partition to txn finish.");
+                        if (log.isDebugEnabled()) {
+                            log.debug("Handle add partition to txn finish.");
+                        }
                     } else {
                         if (log.isDebugEnabled()) {
                             log.debug("Send response error for add published partition to txn request {}",
