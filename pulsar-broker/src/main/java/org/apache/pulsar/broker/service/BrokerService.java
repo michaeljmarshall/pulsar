@@ -26,7 +26,6 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.pulsar.broker.cache.ConfigurationCacheService.POLICIES;
 import static org.apache.pulsar.broker.cache.LocalZooKeeperCacheService.LOCAL_POLICIES_ROOT;
 import static org.apache.pulsar.broker.web.PulsarWebResource.joinPath;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
@@ -67,7 +66,6 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -132,7 +130,6 @@ import org.apache.pulsar.client.impl.PulsarClientImpl;
 import org.apache.pulsar.client.impl.conf.ClientConfigurationData;
 import org.apache.pulsar.common.allocator.PulsarByteBufAllocator;
 import org.apache.pulsar.common.configuration.FieldContext;
-import org.apache.pulsar.common.events.EventsTopicNames;
 import org.apache.pulsar.common.intercept.AppendIndexMetadataInterceptor;
 import org.apache.pulsar.common.intercept.BrokerEntryMetadataInterceptor;
 import org.apache.pulsar.common.intercept.BrokerEntryMetadataUtils;
@@ -232,7 +229,6 @@ public class BrokerService implements Closeable, ZooKeeperCacheListener<Policies
     private final ScheduledExecutorService inactivityMonitor;
     private final ScheduledExecutorService messageExpiryMonitor;
     private final ScheduledExecutorService compactionMonitor;
-    private final ScheduledExecutorService messagePublishBufferMonitor;
     private final ScheduledExecutorService consumedLedgersMonitor;
     private ScheduledExecutorService topicPublishRateLimiterMonitor;
     private ScheduledExecutorService brokerPublishRateLimiterMonitor;
@@ -269,18 +265,13 @@ public class BrokerService implements Closeable, ZooKeeperCacheListener<Policies
     private Channel listenChannelTls;
 
     private boolean preciseTopicPublishRateLimitingEnable;
-    private final long maxMessagePublishBufferBytes;
-    private final long resumeProducerReadMessagePublishBufferBytes;
-    private volatile boolean reachMessagePublishBufferThreshold;
+    private final LongAdder pausedConnections = new LongAdder();
     private BrokerInterceptor interceptor;
 
     private Set<BrokerEntryMetadataInterceptor> brokerEntryMetadataInterceptors;
 
     public BrokerService(PulsarService pulsar) throws Exception {
         this.pulsar = pulsar;
-        this.maxMessagePublishBufferBytes = pulsar.getConfiguration().getMaxMessagePublishBufferSizeInMB() > 0
-                ? pulsar.getConfiguration().getMaxMessagePublishBufferSizeInMB() * 1024L * 1024L : -1;
-        this.resumeProducerReadMessagePublishBufferBytes = this.maxMessagePublishBufferBytes / 2;
         this.preciseTopicPublishRateLimitingEnable =
                 pulsar.getConfiguration().isPreciseTopicPublishRateLimiterEnable();
         this.managedLedgerFactory = pulsar.getManagedLedgerFactory();
@@ -322,9 +313,6 @@ public class BrokerService implements Closeable, ZooKeeperCacheListener<Policies
         this.compactionMonitor =
                 Executors.newSingleThreadScheduledExecutor(
                         new DefaultThreadFactory("pulsar-compaction-monitor"));
-        this.messagePublishBufferMonitor =
-                Executors.newSingleThreadScheduledExecutor(
-                        new DefaultThreadFactory("pulsar-publish-buffer-monitor"));
         this.consumedLedgersMonitor = Executors
                 .newSingleThreadScheduledExecutor(new DefaultThreadFactory("consumed-Ledgers-monitor"));
 
@@ -474,7 +462,6 @@ public class BrokerService implements Closeable, ZooKeeperCacheListener<Policies
         this.startInactivityMonitor();
         this.startMessageExpiryMonitor();
         this.startCompactionMonitor();
-        this.startMessagePublishBufferMonitor();
         this.startConsumedLedgersMonitor();
         this.startBacklogQuotaChecker();
         this.updateBrokerPublisherThrottlingMaxRate();
@@ -549,14 +536,6 @@ public class BrokerService implements Closeable, ZooKeeperCacheListener<Policies
         if (interval > 0) {
             compactionMonitor.scheduleAtFixedRate(safeRun(() -> checkCompaction()),
                                                   interval, interval, TimeUnit.SECONDS);
-        }
-    }
-
-    protected void startMessagePublishBufferMonitor() {
-        int interval = pulsar().getConfiguration().getMessagePublishBufferCheckIntervalInMillis();
-        if (interval > 0 && maxMessagePublishBufferBytes > 0) {
-            messagePublishBufferMonitor.scheduleAtFixedRate(safeRun(this::checkMessagePublishBuffer),
-                                                            interval, interval, TimeUnit.MILLISECONDS);
         }
     }
 
@@ -757,7 +736,6 @@ public class BrokerService implements Closeable, ZooKeeperCacheListener<Policies
                                                 inactivityMonitor,
                                                 messageExpiryMonitor,
                                                 compactionMonitor,
-                                                messagePublishBufferMonitor,
                                                 consumedLedgersMonitor,
                                                 backlogQuotaChecker,
                                                 topicOrderedExecutor,
@@ -2487,22 +2465,6 @@ public class BrokerService implements Closeable, ZooKeeperCacheListener<Policies
         }
     }
 
-    @VisibleForTesting
-    void checkMessagePublishBuffer() {
-        AtomicLong currentMessagePublishBufferBytes = new AtomicLong();
-        foreachCnx(cnx -> currentMessagePublishBufferBytes.addAndGet(cnx.getMessagePublishBufferSize()));
-        if (currentMessagePublishBufferBytes.get() >= maxMessagePublishBufferBytes
-            && !reachMessagePublishBufferThreshold) {
-            reachMessagePublishBufferThreshold = true;
-            forEachTopic(topic -> ((AbstractTopic) topic).disableProducerRead());
-        }
-        if (currentMessagePublishBufferBytes.get() < resumeProducerReadMessagePublishBufferBytes
-            && reachMessagePublishBufferThreshold) {
-            reachMessagePublishBufferThreshold = false;
-            forEachTopic(topic -> ((AbstractTopic) topic).enableProducerReadForPublishBufferLimiting());
-        }
-    }
-
     private void foreachCnx(Consumer<TransportCnx> consumer) {
         Set<TransportCnx> cnxSet = new HashSet<>();
         topics.forEach((n, t) -> {
@@ -2512,17 +2474,6 @@ public class BrokerService implements Closeable, ZooKeeperCacheListener<Policies
         cnxSet.forEach(consumer);
     }
 
-    public boolean isReachMessagePublishBufferThreshold() {
-        return reachMessagePublishBufferThreshold;
-    }
-
-    @VisibleForTesting
-    long getCurrentMessagePublishBufferSize() {
-        AtomicLong currentMessagePublishBufferBytes = new AtomicLong();
-        foreachCnx(cnx -> currentMessagePublishBufferBytes.addAndGet(cnx.getMessagePublishBufferSize()));
-        return currentMessagePublishBufferBytes.get();
-    }
-
     public boolean isAllowAutoTopicCreation(final String topic) {
         TopicName topicName = TopicName.get(topic);
         return isAllowAutoTopicCreation(topicName);
@@ -2530,7 +2481,7 @@ public class BrokerService implements Closeable, ZooKeeperCacheListener<Policies
 
     public boolean isAllowAutoTopicCreation(final TopicName topicName) {
         //System topic can always be created automatically
-        if (EventsTopicNames.NAMESPACE_EVENTS_LOCAL_NAME.equals(topicName.getLocalName())
+        if (SystemTopicClient.isSystemTopic(topicName)
                 && pulsar.getConfiguration().isSystemTopicEnabled()) {
             return true;
         }
@@ -2691,7 +2642,18 @@ public class BrokerService implements Closeable, ZooKeeperCacheListener<Policies
     }
 
     public boolean isBrokerEntryMetadataEnabled() {
-        return brokerEntryMetadataInterceptors.size() > 0;
+        return !brokerEntryMetadataInterceptors.isEmpty();
     }
 
+    public void pausedConnections(int numberOfConnections) {
+        pausedConnections.add(numberOfConnections);
+    }
+
+    public void resumedConnections(int numberOfConnections) {
+        pausedConnections.add(-numberOfConnections);
+    }
+
+    public long getPausedConnections() {
+        return pausedConnections.longValue();
+    }
 }

@@ -167,8 +167,12 @@ public interface SystemTopicClient<T> {
         SystemTopicClient<T> getSystemTopic();
     }
 
+    /**
+     * Returns true if the topicName is a system topic and false if not.
+     * Currently, all system topics are contained in {@link EventsTopicNames}
+     */
     static boolean isSystemTopic(TopicName topicName) {
-        return EventsTopicNames.NAMESPACE_EVENTS_LOCAL_NAME.equals(topicName.getLocalName());
+        return EventsTopicNames.EVENTS_TOPIC_NAMES.contains(topicName.getLocalName());
     }
 
 }
