@@ -102,7 +102,11 @@ public interface AuthenticationDataSource {
     /**
      * Evaluate and challenge the data that passed in, and return processed data back.
      * It is used for mutual authentication like SASL.
+     *
+     * @deprecated Use {@link AuthenticationState#authenticate(AuthData)} instead when
+     * multi-stage authentication is required.
      */
+    @Deprecated
     default AuthData authenticate(AuthData data) throws AuthenticationException {
         throw new AuthenticationException("Not supported");
     }
