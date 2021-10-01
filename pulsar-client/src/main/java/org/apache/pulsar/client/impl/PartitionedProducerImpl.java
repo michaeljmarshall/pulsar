@@ -262,6 +262,18 @@ public class PartitionedProducerImpl<T> extends ProducerBase<T> {
         return closeFuture;
     }
 
+    /**
+     * Shutdown the producer immediately.
+     */
+    @Override
+    void shutdown() {
+        // TODO implement me better
+    }
+
+    void internalShutdown() {
+        producers.forEach(ProducerImpl::shutdown);
+    }
+
     @Override
     public synchronized ProducerStatsRecorderImpl getStats() {
         if (stats == null) {

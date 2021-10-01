@@ -39,6 +39,7 @@ import org.apache.pulsar.common.util.collections.ConcurrentOpenHashMap;
 public abstract class ProducerBase<T> extends HandlerState implements Producer<T> {
 
     protected final CompletableFuture<Producer<T>> producerCreatedFuture;
+    protected volatile CompletableFuture<ProducerResponse>  producerCloseRequestFuture;
     protected final ProducerConfigurationData conf;
     protected final Schema<T> schema;
     protected final ProducerInterceptors interceptors;
@@ -141,6 +142,11 @@ public abstract class ProducerBase<T> extends HandlerState implements Producer<T
 
     @Override
     abstract public CompletableFuture<Void> closeAsync();
+
+    /**
+     * Shutdown the producer immediately.
+     */
+    abstract void shutdown();
 
     @Override
     public String getTopic() {

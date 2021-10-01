@@ -320,6 +320,8 @@ public class ConnectionPool implements Closeable {
         try {
             if (!eventLoopGroup.isShutdown()) {
                 eventLoopGroup.shutdownGracefully(0, 10, TimeUnit.SECONDS).await();
+                // TODO should we call this??
+                closeAllConnections();
             }
         } catch (InterruptedException e) {
             log.warn("EventLoopGroup shutdown was interrupted", e);

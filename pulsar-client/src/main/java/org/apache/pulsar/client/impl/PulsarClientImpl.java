@@ -687,6 +687,7 @@ public class PulsarClientImpl implements PulsarClient {
             try {
                 shutdown();
                 closeFuture.complete(null);
+                // todo isn't it late to set me to closing?
                 state.set(State.Closed);
             } catch (PulsarClientException e) {
                 closeFuture.completeExceptionally(e);
@@ -704,6 +705,7 @@ public class PulsarClientImpl implements PulsarClient {
         try {
             // We will throw the last thrown exception only, though logging all of them.
             Throwable throwable = null;
+            producers.forEach(p -> p);
             if (lookup != null) {
                 try {
                     lookup.close();
