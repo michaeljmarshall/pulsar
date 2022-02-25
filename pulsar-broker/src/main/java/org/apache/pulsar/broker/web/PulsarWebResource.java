@@ -770,7 +770,7 @@ public abstract class PulsarWebResource {
 
         pulsarService.getPulsarResources().getNamespaceResources()
                 .getPoliciesAsync(namespace).thenAccept(policiesResult -> {
-            if (policiesResult.isPresent()) {
+            if (policiesResult.isPresent() && !policiesResult.get().deleted) {
                 Policies policies = policiesResult.get();
                 if (policies.replication_clusters.isEmpty()) {
                     String msg = String.format(
