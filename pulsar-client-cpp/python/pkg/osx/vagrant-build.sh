@@ -31,6 +31,8 @@ set -e -x
 rm -rf pulsar
 git clone -q --depth 1 --branch $GIT_TAG $GIT_REPO
 cd pulsar/pulsar-client-cpp
+sed -i .original 's/-Wno-error=cpp//' CMakeLists.txt
+sed -i .original 's/-Werror//' CMakeLists.txt
 
 brew link --force boost
 brew link --force protobuf260 || true ## Older images have protobuf 2.6.0 and not linked
