@@ -44,6 +44,7 @@ import org.apache.bookkeeper.mledger.ManagedLedgerException.NoMoreEntriesToReadE
 import org.apache.bookkeeper.mledger.ManagedLedgerException.TooManyRequestsException;
 import org.apache.bookkeeper.mledger.Position;
 import org.apache.bookkeeper.mledger.impl.PositionImpl;
+import org.apache.bookkeeper.mledger.util.AbstractCASReferenceCounted;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.pulsar.broker.delayed.DelayedDeliveryTracker;
 import org.apache.pulsar.broker.delayed.InMemoryDelayedDeliveryTracker;
@@ -551,8 +552,21 @@ public class PersistentDispatcherMultipleConsumers extends AbstractDispatcherMul
             // setting sendInProgress here, because sendMessagesToConsumers will be executed
             // in a separate thread, and we want to prevent more reads
             sendInProgress = true;
+            // Increase the reference count to prevent the cache from removing these entries when it calls
+            // "release" as they expire.
+            for (Entry entry : entries) {
+                ((AbstractCASReferenceCounted) entry).retain();
+            }
             dispatchMessagesThread.execute(safeRun(() -> {
-                if (sendMessagesToConsumers(readType, entries)) {
+                boolean shouldReadMoreEntries;
+                try {
+                    shouldReadMoreEntries = sendMessagesToConsumers(readType, entries);
+                } finally {
+                    for (Entry entry : entries) {
+                        entry.release();
+                    }
+                }
+                if (shouldReadMoreEntries) {
                     readMoreEntries();
                 }
             }));
