@@ -636,7 +636,8 @@ public class ServerCnx extends PulsarHandler implements TransportCnx {
     }
 
     // complete the connect and sent newConnected command
-    private void completeConnect(int clientProtoVersion, String clientVersion, boolean supportsTopicWatchers) {
+    private void completeConnect(int clientProtoVersion, String clientVersion, boolean supportsTopicWatchers,
+                                 String role) {
         ctx.writeAndFlush(Commands.newConnected(clientProtoVersion, maxMessageSize, supportsTopicWatchers));
         state = State.Connected;
         service.getPulsarStats().recordConnectionCreateSuccess();
@@ -647,6 +648,8 @@ public class ServerCnx extends PulsarHandler implements TransportCnx {
         if (isNotBlank(clientVersion) && !clientVersion.contains(" ") /* ignore default version: pulsar client */) {
             this.clientVersion = clientVersion.intern();
         }
+        log.info("[{}] connected role {} using authMethod: {}, clientVersion: {}, clientProtocolVersion: {}",
+                remoteAddress, role, authMethod, clientVersion, clientProtoVersion);
         BrokerInterceptor brokerInterceptor = getBrokerService().getInterceptor();
         if (brokerInterceptor != null) {
             brokerInterceptor.onConnectionCreated(this);
@@ -696,7 +699,7 @@ public class ServerCnx extends PulsarHandler implements TransportCnx {
 
             if (state != State.Connected) {
                 // First time authentication is done
-                completeConnect(clientProtocolVersion, clientVersion, enableSubscriptionPatternEvaluation);
+                completeConnect(clientProtocolVersion, clientVersion, enableSubscriptionPatternEvaluation, authRole);
             } else {
                 // If the connection was already ready, it means we're doing a refresh
                 if (!StringUtils.isEmpty(authRole)) {
@@ -803,7 +806,7 @@ public class ServerCnx extends PulsarHandler implements TransportCnx {
         }
 
         if (!service.isAuthenticationEnabled()) {
-            completeConnect(clientProtocolVersion, clientVersion, enableSubscriptionPatternEvaluation);
+            completeConnect(clientProtocolVersion, clientVersion, enableSubscriptionPatternEvaluation, "");
             return;
         }
 
@@ -831,7 +834,7 @@ public class ServerCnx extends PulsarHandler implements TransportCnx {
                 authRole = getBrokerService().getAuthenticationService().getAnonymousUserRole()
                     .orElseThrow(() ->
                         new AuthenticationException("No anonymous role, and no authentication provider configured"));
-                completeConnect(clientProtocolVersion, clientVersion, enableSubscriptionPatternEvaluation);
+                completeConnect(clientProtocolVersion, clientVersion, enableSubscriptionPatternEvaluation, authRole);
                 return;
             }
 

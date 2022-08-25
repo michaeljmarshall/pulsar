@@ -300,7 +300,7 @@ public class ProxyConnection extends PulsarHandler {
         return channel.pipeline().get(ServiceChannelInitializer.TLS_HANDLER) != null;
     }
 
-    private synchronized void completeConnect(AuthData clientData) throws PulsarClientException {
+    private synchronized void completeConnect(AuthData clientData, CommandConnect connect) throws PulsarClientException {
         Supplier<ClientCnx> clientCnxSupplier;
         if (service.getConfiguration().isAuthenticationEnabled()) {
             if (service.getConfiguration().isForwardAuthorizationCredentials()) {
@@ -324,8 +324,9 @@ public class ProxyConnection extends PulsarHandler {
                     remoteAddress, state, clientAuthRole);
         }
 
-        LOG.info("[{}] complete connection, init proxy handler. authenticated with {} role {}, hasProxyToBrokerUrl: {}",
-                remoteAddress, authMethod, clientAuthRole, hasProxyToBrokerUrl);
+        LOG.info("[{}] connected role {} using authMethod: {}, clientVersion: {}, clientProtocolVersion: {}, "
+                        + "hasProxyToBrokerUrl: {}", remoteAddress, authMethod, clientAuthRole,
+                connect.getClientVersion(), connect.getProtocolVersion(), hasProxyToBrokerUrl);
         if (hasProxyToBrokerUrl) {
             // Optimize proxy connection to fail-fast if the target broker isn't active
             // Pulsar client will retry connecting after a back off timeout
