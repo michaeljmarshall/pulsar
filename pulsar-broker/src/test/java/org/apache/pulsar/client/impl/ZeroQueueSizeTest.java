@@ -276,6 +276,42 @@ public class ZeroQueueSizeTest extends BrokerTestBase {
         }
     }
 
+    @Test(timeOut = 30000L)
+    public void zeroQueueSizePausedConsumer() throws PulsarClientException {
+        String key = "zeroQueueSizePausedConsumer";
+
+        // 1. Config
+        final String topicName = "persistent://prop/use/ns-abc/topic-" + key;
+        final String subscriptionName = "my-ex-subscription-" + key;
+        final String messagePredicate = "my-message-" + key + "-";
+
+        // 2. Create Producer
+        Producer<byte[]> producer = pulsarClient.newProducer().topic(topicName).enableBatching(false).create();
+
+        // 3. Create Consumer
+        ConsumerImpl<byte[]> consumer = (ConsumerImpl<byte[]>) pulsarClient.newConsumer().topic(topicName)
+                .subscriptionName(subscriptionName).receiverQueueSize(0).subscribe();
+
+        consumer.pause();
+
+        // 3. producer publish messages
+        for (int i = 0; i < 2; i++) {
+            String message = messagePredicate + i;
+            log.info("Producer produced: " + message);
+            producer.send(message.getBytes());
+        }
+
+        // 4. Receiver receives the message
+        Message<byte[]> message;
+        for (int i = 0; i < totalMessages; i++) {
+            assertEquals(consumer.numMessagesInQueue(), 0);
+            message = consumer.receive();
+            assertEquals(new String(message.getData()), messagePredicate + i);
+            assertEquals(consumer.numMessagesInQueue(), 0);
+            log.info("Consumer received : " + new String(message.getData()));
+        }
+    }
+
     @Test
     public void testFailedZeroQueueSizeBatchMessage() throws PulsarClientException {
 
