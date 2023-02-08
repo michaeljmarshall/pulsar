@@ -172,7 +172,7 @@ public class PulsarFunctionPublishTest {
 
         admin = spy(
                 PulsarAdmin.builder().serviceHttpUrl(brokerServiceUrl).tlsTrustCertsFilePath(TLS_TRUST_CERT_FILE_PATH)
-                        .allowTlsInsecureConnection(true).authentication(authTls).build());
+                        .enableTlsHostnameVerification(true).authentication(authTls).build());
 
         brokerStatsClient = admin.brokerStats();
         primaryHost = pulsar.getWebServiceAddress();
@@ -401,7 +401,7 @@ public class PulsarFunctionPublishTest {
         //set multi webService url
         PulsarAdmin pulsarAdmin = PulsarAdmin.builder().serviceHttpUrl(pulsar.getWebServiceAddressTls() + "," + secondAddress)
                 .tlsTrustCertsFilePath(TLS_TRUST_CERT_FILE_PATH)
-                .allowTlsInsecureConnection(true).authentication(authTls)
+                .enableTlsHostnameVerification(true).authentication(authTls)
                 .build();
 
         File jarFile = getPulsarApiExamplesJar();

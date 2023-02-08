@@ -126,7 +126,7 @@ public class AuthenticatedProducerConsumerTest extends ProducerConsumerBase {
 
     protected final void internalSetup(Authentication auth) throws Exception {
         admin = spy(PulsarAdmin.builder().serviceHttpUrl(brokerUrlTls.toString())
-                .tlsTrustCertsFilePath(TLS_TRUST_CERT_FILE_PATH).allowTlsInsecureConnection(true).authentication(auth)
+                .tlsTrustCertsFilePath(TLS_TRUST_CERT_FILE_PATH).enableTlsHostnameVerification(true).authentication(auth)
                 .build());
         String lookupUrl;
         // For http basic authentication test
@@ -136,7 +136,7 @@ public class AuthenticatedProducerConsumerTest extends ProducerConsumerBase {
             lookupUrl = pulsar.getBrokerServiceUrlTls();
         }
         replacePulsarClient(PulsarClient.builder().serviceUrl(lookupUrl).statsInterval(0, TimeUnit.SECONDS)
-                .tlsTrustCertsFilePath(TLS_TRUST_CERT_FILE_PATH).allowTlsInsecureConnection(true).authentication(auth)
+                .tlsTrustCertsFilePath(TLS_TRUST_CERT_FILE_PATH).enableTlsHostnameVerification(true).authentication(auth)
                 .enableTls(true));
     }
 

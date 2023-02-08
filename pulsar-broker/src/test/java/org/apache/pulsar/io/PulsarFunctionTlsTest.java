@@ -163,7 +163,7 @@ public class PulsarFunctionTlsTest {
         authTls.configure(authParams);
 
         functionAdmin = PulsarAdmin.builder().serviceHttpUrl(functionTlsUrl)
-                .tlsTrustCertsFilePath(TLS_CLIENT_CERT_FILE_PATH).allowTlsInsecureConnection(true)
+                .tlsTrustCertsFilePath(TLS_CLIENT_CERT_FILE_PATH).enableTlsHostnameVerification(true)
                 .authentication(authTls).build();
 
         Thread.sleep(100);

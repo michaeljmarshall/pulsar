@@ -126,7 +126,7 @@ public class KeyStoreTlsProducerConsumerTestWithoutAuthTest extends ProducerCons
                 .useKeyStoreTls(true)
                 .tlsTrustStorePath(BROKER_TRUSTSTORE_FILE_PATH)
                 .tlsTrustStorePassword(BROKER_TRUSTSTORE_PW)
-                .allowTlsInsecureConnection(true)
+                .enableTlsHostnameVerification(true)
                 .authentication(AuthenticationKeyStoreTls.class.getName(), authParams).build());
         admin.clusters().createCluster(clusterName, ClusterData.builder()
                 .serviceUrl(brokerUrl.toString())

@@ -199,9 +199,9 @@ public class ProxyWithoutServiceDiscoveryTest extends ProducerConsumerBase {
 
     protected final PulsarClient createPulsarClient(Authentication auth, String lookupUrl) throws Exception {
         admin = spy(PulsarAdmin.builder().serviceHttpUrl(brokerUrlTls.toString()).tlsTrustCertsFilePath(TLS_TRUST_CERT_FILE_PATH)
-                .allowTlsInsecureConnection(true).authentication(auth).build());
+                .enableTlsHostnameVerification(true).authentication(auth).build());
         return PulsarClient.builder().serviceUrl(lookupUrl).statsInterval(0, TimeUnit.SECONDS)
-                .tlsTrustCertsFilePath(TLS_TRUST_CERT_FILE_PATH).allowTlsInsecureConnection(true).authentication(auth)
+                .tlsTrustCertsFilePath(TLS_TRUST_CERT_FILE_PATH).enableTlsHostnameVerification(true).authentication(auth)
                 .enableTls(true).build();
     }
 
