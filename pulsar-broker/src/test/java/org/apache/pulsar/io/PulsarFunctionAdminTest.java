@@ -132,7 +132,7 @@ public class PulsarFunctionAdminTest {
                 PulsarAdmin.builder()
                         .serviceHttpUrl(pulsar.getWebServiceAddressTls())
                         .tlsTrustCertsFilePath(TLS_CLIENT_CERT_FILE_PATH)
-                        .allowTlsInsecureConnection(true)
+                        .enableTlsHostnameVerification(true)
                         .authentication(authTls)
                         .build());
 

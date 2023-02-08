@@ -740,7 +740,7 @@ public class PulsarFunctionE2ETest extends AbstractPulsarE2ETest {
             admin = spy(
                 PulsarAdmin.builder().serviceHttpUrl(pulsar.getWebServiceAddressTls())
                     .tlsTrustCertsFilePath(TLS_TRUST_CERT_FILE_PATH)
-                    .allowTlsInsecureConnection(true).build());
+                    .enableTlsHostnameVerification(true).build());
             try {
                 admin.functions().createFunctionWithUrl(functionConfig, jarFilePathUrl);
             } catch (org.apache.pulsar.client.admin.PulsarAdminException.NotAuthorizedException ne) {

@@ -266,7 +266,7 @@ public class PulsarFunctionLocalRunTest {
 
         admin = spy(
                 PulsarAdmin.builder().serviceHttpUrl(brokerServiceUrl).tlsTrustCertsFilePath(TLS_TRUST_CERT_FILE_PATH)
-                        .allowTlsInsecureConnection(true).authentication(authTls).build());
+                        .enableTlsHostnameVerification(true).authentication(authTls).build());
 
         brokerStatsClient = admin.brokerStats();
         primaryHost = pulsar.getWebServiceAddress();

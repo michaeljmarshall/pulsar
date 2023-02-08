@@ -177,7 +177,7 @@ public abstract class AbstractPulsarE2ETest {
         admin = spy(
                 PulsarAdmin.builder().serviceHttpUrl(pulsar.getWebServiceAddressTls())
                         .tlsTrustCertsFilePath(TLS_TRUST_CERT_FILE_PATH)
-                        .allowTlsInsecureConnection(true).authentication(authTls).build());
+                        .enableTlsHostnameVerification(true).authentication(authTls).build());
 
         brokerStatsClient = admin.brokerStats();
         primaryHost = String.format("http://%s:%d", "localhost", pulsar.getListenPortHTTP().get());
