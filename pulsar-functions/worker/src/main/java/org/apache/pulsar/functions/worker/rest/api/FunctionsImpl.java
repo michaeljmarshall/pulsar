@@ -187,7 +187,8 @@ public class FunctionsImpl extends ComponentImpl implements Functions<PulsarWork
 
                         try {
                             Optional<FunctionAuthData> functionAuthData = functionAuthProvider
-                                    .cacheAuthData(finalFunctionDetails, authDataWrapper.getClientAuthenticationDataSource());
+                                    .cacheAuthData(finalFunctionDetails,
+                                            authDataWrapper.getClientAuthenticationDataSource());
 
                             functionAuthData.ifPresent(authData -> functionMetaDataBuilder.setFunctionAuthSpec(
                                     Function.FunctionAuthenticationSpec.newBuilder()
@@ -645,8 +646,8 @@ public class FunctionsImpl extends ComponentImpl implements Functions<PulsarWork
         if (worker().getWorkerConfig().isAuthorizationEnabled()) {
             if (!isSuperUser(authDataWrapper)) {
                 log.error("{}/{}/{} Client with role [{}] and originalPrincipal [{}] is not superuser to update on"
-                                + " worker leader {}", tenant, namespace,
-                        functionName, authDataWrapper.getClientRole(), authDataWrapper.getClientAuthenticationDataSource(),
+                                + " worker leader {}", tenant, namespace, functionName, authDataWrapper.getClientRole(),
+                        authDataWrapper.getClientAuthenticationDataSource(),
                         ComponentTypeUtils.toString(componentType));
                 throw new RestException(Response.Status.UNAUTHORIZED, "Client is not authorized to perform operation");
             }

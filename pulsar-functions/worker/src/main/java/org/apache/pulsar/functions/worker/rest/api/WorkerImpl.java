@@ -157,7 +157,8 @@ public class WorkerImpl implements Workers<PulsarWorkerService> {
     }
 
     @Override
-    public List<WorkerFunctionInstanceStats> getFunctionsMetrics(HttpAuthDataWrapper authDataWrapper) throws IOException {
+    public List<WorkerFunctionInstanceStats> getFunctionsMetrics(HttpAuthDataWrapper authDataWrapper)
+            throws IOException {
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
         }
@@ -236,7 +237,8 @@ public class WorkerImpl implements Workers<PulsarWorkerService> {
     }
 
     @Override
-    public void drain(final URI uri, final String inWorkerId, final HttpAuthDataWrapper authDataWrapper, boolean calledOnLeaderUri) {
+    public void drain(final URI uri, final String inWorkerId, final HttpAuthDataWrapper authDataWrapper,
+                      boolean calledOnLeaderUri) {
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
         }

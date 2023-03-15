@@ -187,7 +187,8 @@ public class SourcesImpl extends ComponentImpl implements Sources<PulsarWorkerSe
 
                         try {
                             Optional<FunctionAuthData> functionAuthData = functionAuthProvider
-                                    .cacheAuthData(finalFunctionDetails, authDataWrapper.getClientAuthenticationDataSource());
+                                    .cacheAuthData(finalFunctionDetails,
+                                            authDataWrapper.getClientAuthenticationDataSource());
 
                             functionAuthData.ifPresent(authData -> functionMetaDataBuilder.setFunctionAuthSpec(
                                     Function.FunctionAuthenticationSpec.newBuilder()
