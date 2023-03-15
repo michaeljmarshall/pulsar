@@ -18,7 +18,6 @@
  */
 package org.apache.pulsar.functions.worker.rest.api;
 
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.doReturn;
@@ -39,6 +38,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import org.apache.distributedlog.api.namespace.Namespace;
 import org.apache.pulsar.broker.authentication.AuthenticationDataSource;
+import org.apache.pulsar.broker.authentication.HttpAuthDataWrapper;
 import org.apache.pulsar.broker.authorization.AuthorizationService;
 import org.apache.pulsar.client.admin.Namespaces;
 import org.apache.pulsar.client.admin.PulsarAdmin;
@@ -256,7 +256,7 @@ public class FunctionsImplTest {
 
         // test normal user
         functionImpl = spy(new FunctionsImpl(() -> mockedWorkerService));
-        doReturn(false).when(functionImpl).allowFunctionOps(any(), any(), any());
+        doReturn(false).when(functionImpl).allowFunctionOps(any(), any());
         Tenants tenants = mock(Tenants.class);
         when(tenants.getTenantInfo(any())).thenReturn(tenantInfo);
         PulsarAdmin admin = mock(PulsarAdmin.class);
@@ -270,7 +270,7 @@ public class FunctionsImplTest {
 
         // if user is tenant admin
         functionImpl = spy(new FunctionsImpl(() -> mockedWorkerService));
-        doReturn(false).when(functionImpl).allowFunctionOps(any(), any(), any());
+        doReturn(false).when(functionImpl).allowFunctionOps(any(), any());
         tenants = mock(Tenants.class);
         tenantInfo = TenantInfo.builder().adminRoles(Collections.singleton("test-user")).build();
         when(tenants.getTenantInfo(any())).thenReturn(tenantInfo);
@@ -286,7 +286,7 @@ public class FunctionsImplTest {
 
         // test user allow function action
         functionImpl = spy(new FunctionsImpl(() -> mockedWorkerService));
-        doReturn(true).when(functionImpl).allowFunctionOps(any(), any(), any());
+        doReturn(true).when(functionImpl).allowFunctionOps(any(), any());
         tenants = mock(Tenants.class);
         tenantInfo = TenantInfo.builder().build();
         when(tenants.getTenantInfo(any())).thenReturn(tenantInfo);
@@ -300,7 +300,7 @@ public class FunctionsImplTest {
 
         // test role is null
         functionImpl = spy(new FunctionsImpl(() -> mockedWorkerService));
-        doReturn(true).when(functionImpl).allowFunctionOps(any(), any(), any());
+        doReturn(true).when(functionImpl).allowFunctionOps(any(), any());
         tenants = mock(Tenants.class);
         when(tenants.getTenantInfo(any())).thenReturn(TenantInfo.builder().build());
 
@@ -320,20 +320,19 @@ public class FunctionsImplTest {
         workerConfig.setAuthorizationEnabled(true);
         workerConfig.setSuperUserRoles(Collections.singleton(superUser));
         doReturn(workerConfig).when(mockedWorkerService).getWorkerConfig();
-        when(authorizationService.isSuperUser(anyString(), any()))
+        when(authorizationService.isSuperUser(any(HttpAuthDataWrapper.class)))
             .thenAnswer((invocationOnMock) -> {
-                String role = invocationOnMock.getArgument(0, String.class);
+                String role = invocationOnMock.getArgument(0, HttpAuthDataWrapper.class).getClientRole();
                 return CompletableFuture.completedFuture(superUser.equals(role));
             });
 
-        AuthenticationDataSource authenticationDataSource = mock(AuthenticationDataSource.class);
         assertTrue(functionImpl.isSuperUser(superUser, null));
 
         assertFalse(functionImpl.isSuperUser("normal-user", null));
         assertFalse(functionImpl.isSuperUser(null, null));
 
         // test super roles is null and it's not a pulsar super user
-        when(authorizationService.isSuperUser(superUser, null))
+        when(authorizationService.isSuperUser(HttpAuthDataWrapper.builder().clientRole(superUser).build()))
                 .thenReturn(CompletableFuture.completedFuture(false));
         functionImpl = spy(new FunctionsImpl(() -> mockedWorkerService));
         workerConfig = new WorkerConfig();
@@ -342,10 +341,10 @@ public class FunctionsImplTest {
         assertFalse(functionImpl.isSuperUser(superUser, null));
 
         // test super role is null but the auth datasource contains superuser
-        when(authorizationService.isSuperUser(anyString(), any(AuthenticationDataSource.class)))
+        when(authorizationService.isSuperUser(any(HttpAuthDataWrapper.class)))
             .thenAnswer((invocationOnMock -> {
-                AuthenticationDataSource authData = invocationOnMock.getArgument(1, AuthenticationDataSource.class);
-                String user = authData.getHttpHeader("mockedUser");
+                HttpAuthDataWrapper authData = invocationOnMock.getArgument(0, HttpAuthDataWrapper.class);
+                String user = authData.getClientAuthenticationDataSource().getHttpHeader("mockedUser");
                 return CompletableFuture.completedFuture(superUser.equals(user));
             }));
         AuthenticationDataSource authData = mock(AuthenticationDataSource.class);

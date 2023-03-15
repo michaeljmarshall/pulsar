@@ -24,12 +24,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import org.apache.pulsar.broker.authentication.AuthenticationDataSource;
+import org.apache.pulsar.broker.authentication.HttpAuthDataWrapper;
 import org.apache.pulsar.broker.web.AuthenticationFilter;
 import org.apache.pulsar.functions.worker.WorkerService;
 
 public class FunctionApiResource implements Supplier<WorkerService> {
 
     public static final String ATTRIBUTE_FUNCTION_WORKER = "function-worker";
+    public static final String ORIGINAL_PRINCIPAL_HEADER = "X-Original-Principal";
 
     private WorkerService workerService;
     @Context
@@ -45,6 +47,14 @@ public class FunctionApiResource implements Supplier<WorkerService> {
             this.workerService = (WorkerService) servletContext.getAttribute(ATTRIBUTE_FUNCTION_WORKER);
         }
         return this.workerService;
+    }
+
+    public HttpAuthDataWrapper httpAuthDataWrapper() {
+        return HttpAuthDataWrapper.builder()
+                .originalPrincipal(httpRequest.getHeader(ORIGINAL_PRINCIPAL_HEADER))
+                .clientRole(clientAppId())
+                .clientAuthenticationDataSource(clientAuthData())
+                .build();
     }
 
     public String clientAppId() {

@@ -23,6 +23,7 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import org.apache.pulsar.broker.authentication.HttpAuthDataWrapper;
 import org.apache.pulsar.client.admin.LongRunningProcessStatus;
 import org.apache.pulsar.common.functions.WorkerInfo;
 import org.apache.pulsar.common.io.ConnectorDefinition;
@@ -35,25 +36,85 @@ import org.apache.pulsar.functions.worker.WorkerService;
  */
 public interface Workers<W extends WorkerService> {
 
-    List<WorkerInfo> getCluster(String clientRole);
+    List<WorkerInfo> getCluster(HttpAuthDataWrapper authDataWrapper);
 
-    WorkerInfo getClusterLeader(String clientRole);
+    @Deprecated
+    default List<WorkerInfo> getCluster(String clientRole) {
+        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole).build();
+        return getCluster(authDataWrapper);
+    }
 
-    Map<String, Collection<String>> getAssignments(String clientRole);
+    WorkerInfo getClusterLeader(HttpAuthDataWrapper authDataWrapper);
 
-    List<Metrics> getWorkerMetrics(String clientRole);
+    @Deprecated
+    default WorkerInfo getClusterLeader(String clientRole) {
+        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole).build();
+        return getClusterLeader(authDataWrapper);
+    }
 
-    List<WorkerFunctionInstanceStats> getFunctionsMetrics(String clientRole) throws IOException;
+    Map<String, Collection<String>> getAssignments(HttpAuthDataWrapper authDataWrapper);
 
-    List<ConnectorDefinition> getListOfConnectors(String clientRole);
+    @Deprecated
+    default Map<String, Collection<String>> getAssignments(String clientRole) {
+        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole).build();
+        return getAssignments(authDataWrapper);
+    }
 
-    void rebalance(URI uri, String clientRole);
+    List<Metrics> getWorkerMetrics(HttpAuthDataWrapper authDataWrapper);
 
-    void drain(URI uri, String workerId, String clientRole, boolean leaderUri);
+    @Deprecated
+    default List<Metrics> getWorkerMetrics(String clientRole) {
+        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole).build();
+        return getWorkerMetrics(authDataWrapper);
+    }
 
-    LongRunningProcessStatus getDrainStatus(URI uri, String workerId, String clientRole,
+    List<WorkerFunctionInstanceStats> getFunctionsMetrics(HttpAuthDataWrapper authDataWrapper) throws IOException;
+
+    @Deprecated
+    default List<WorkerFunctionInstanceStats> getFunctionsMetrics(String clientRole) throws IOException {
+        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole).build();
+        return getFunctionsMetrics(authDataWrapper);
+    }
+
+    List<ConnectorDefinition> getListOfConnectors(HttpAuthDataWrapper authDataWrapper);
+
+    @Deprecated
+    default List<ConnectorDefinition> getListOfConnectors(String clientRole) {
+        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole).build();
+        return getListOfConnectors(authDataWrapper);
+    }
+
+    void rebalance(URI uri, HttpAuthDataWrapper authDataWrapper);
+
+    @Deprecated
+    default void rebalance(URI uri, String clientRole) {
+        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole).build();
+        rebalance(uri, authDataWrapper);
+    }
+
+    void drain(URI uri, String workerId, HttpAuthDataWrapper authDataWrapper, boolean leaderUri);
+
+    @Deprecated
+    default void drain(URI uri, String workerId, String clientRole, boolean leaderUri) {
+        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole).build();
+        drain(uri, workerId, authDataWrapper, leaderUri);
+    }
+
+    LongRunningProcessStatus getDrainStatus(URI uri, String workerId, HttpAuthDataWrapper authDataWrapper,
                                             boolean leaderUri);
 
-    Boolean isLeaderReady(String clientRole);
+    @Deprecated
+    default LongRunningProcessStatus getDrainStatus(URI uri, String workerId, String clientRole,
+                                            boolean leaderUri) {
+        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole).build();
+        return getDrainStatus(uri, workerId, authDataWrapper, leaderUri);
+    }
+
+    boolean isLeaderReady();
+
+    @Deprecated
+    default Boolean isLeaderReady(String clientRole) {
+        return isLeaderReady();
+    }
 
 }

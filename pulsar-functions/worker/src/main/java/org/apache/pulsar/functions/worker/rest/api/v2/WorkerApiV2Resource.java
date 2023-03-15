@@ -39,11 +39,14 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.pulsar.broker.authentication.AuthenticationDataSource;
+import org.apache.pulsar.broker.authentication.HttpAuthDataWrapper;
 import org.apache.pulsar.broker.web.AuthenticationFilter;
 import org.apache.pulsar.client.admin.LongRunningProcessStatus;
 import org.apache.pulsar.common.functions.WorkerInfo;
 import org.apache.pulsar.common.io.ConnectorDefinition;
 import org.apache.pulsar.functions.worker.WorkerService;
+import org.apache.pulsar.functions.worker.rest.FunctionApiResource;
 import org.apache.pulsar.functions.worker.service.api.Workers;
 
 @Slf4j
@@ -79,6 +82,15 @@ public class WorkerApiV2Resource implements Supplier<WorkerService> {
         return httpRequest != null
                 ? (String) httpRequest.getAttribute(AuthenticationFilter.AuthenticatedRoleAttributeName)
                 : null;
+    }
+
+    public HttpAuthDataWrapper httpAuthDataWrapper() {
+        return HttpAuthDataWrapper.builder()
+                .clientRole(clientAppId())
+                .originalPrincipal(httpRequest.getHeader(FunctionApiResource.ORIGINAL_PRINCIPAL_HEADER))
+                .clientAuthenticationDataSource((AuthenticationDataSource)
+                        httpRequest.getAttribute(AuthenticationFilter.AuthenticatedDataAttributeName))
+                .build();
     }
 
     @GET
@@ -153,7 +165,7 @@ public class WorkerApiV2Resource implements Supplier<WorkerService> {
     })
     @Path("/rebalance")
     public void rebalance() {
-        workers().rebalance(uri.getRequestUri(), clientAppId());
+        workers().rebalance(uri.getRequestUri(), httpAuthDataWrapper());
     }
 
     @PUT
@@ -169,7 +181,7 @@ public class WorkerApiV2Resource implements Supplier<WorkerService> {
     })
     @Path("/leader/drain")
     public void drainAtLeader(@QueryParam("workerId") String workerId) {
-        workers().drain(uri.getRequestUri(), workerId, clientAppId(), true);
+        workers().drain(uri.getRequestUri(), workerId, httpAuthDataWrapper(), true);
     }
 
     @PUT
@@ -185,7 +197,7 @@ public class WorkerApiV2Resource implements Supplier<WorkerService> {
     })
     @Path("/drain")
     public void drain() {
-        workers().drain(uri.getRequestUri(), null, clientAppId(), false);
+        workers().drain(uri.getRequestUri(), null, httpAuthDataWrapper(), false);
     }
 
     @GET
@@ -199,7 +211,7 @@ public class WorkerApiV2Resource implements Supplier<WorkerService> {
     })
     @Path("/leader/drain")
     public LongRunningProcessStatus getDrainStatus(@QueryParam("workerId") String workerId) {
-        return workers().getDrainStatus(uri.getRequestUri(), workerId, clientAppId(), true);
+        return workers().getDrainStatus(uri.getRequestUri(), workerId, httpAuthDataWrapper(), true);
     }
 
     @GET
@@ -213,7 +225,7 @@ public class WorkerApiV2Resource implements Supplier<WorkerService> {
     })
     @Path("/drain")
     public LongRunningProcessStatus getDrainStatus() {
-        return workers().getDrainStatus(uri.getRequestUri(), null, clientAppId(), false);
+        return workers().getDrainStatus(uri.getRequestUri(), null, httpAuthDataWrapper(), false);
     }
 
     @GET
@@ -226,6 +238,6 @@ public class WorkerApiV2Resource implements Supplier<WorkerService> {
     })
     @Path("/cluster/leader/ready")
     public Boolean isLeaderReady() {
-        return workers().isLeaderReady(clientAppId());
+        return workers().isLeaderReady();
     }
 }
