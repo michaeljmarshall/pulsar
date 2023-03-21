@@ -270,7 +270,8 @@ public class FunctionsImplTest {
         doReturn(authorizationService).when(mockedWorkerService).getAuthorizationService();
 
         // test super user
-        assertTrue(functionImpl.isAuthorizedRole("test-tenant", "test-ns", superUser, authenticationDataSource));
+        assertTrue(functionImpl.isAuthorizedRole("test-tenant", "test-ns", superUser,
+                authenticationDataSource));
         assertTrue(functionImpl.isSuperUser(superUser, null));
 
         // test normal user with no permissions
@@ -278,13 +279,16 @@ public class FunctionsImplTest {
                 authenticationDataSource));
 
         // if user is tenant admin
-        assertTrue(functionImpl.isAuthorizedRole("test-tenant", "test-ns", "tenant-admin", authenticationDataSource));
+        assertTrue(functionImpl.isAuthorizedRole("test-tenant", "test-ns", "tenant-admin",
+                authenticationDataSource));
 
         // test user allow function action
-        assertTrue(functionImpl.isAuthorizedRole("test-tenant", "test-ns", "test-function-user", authenticationDataSource));
+        assertTrue(functionImpl.isAuthorizedRole("test-tenant", "test-ns", "test-function-user",
+                authenticationDataSource));
 
         // test role is null
-        assertFalse(functionImpl.isAuthorizedRole("test-tenant", "test-ns", null, authenticationDataSource));
+        assertFalse(functionImpl.isAuthorizedRole("test-tenant", "test-ns", null,
+                authenticationDataSource));
     }
 
     @Test
