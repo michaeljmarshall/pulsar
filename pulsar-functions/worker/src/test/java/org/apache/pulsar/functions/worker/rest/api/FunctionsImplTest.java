@@ -34,20 +34,28 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import org.apache.distributedlog.api.namespace.Namespace;
 import org.apache.pulsar.broker.authentication.AuthenticationDataSource;
 import org.apache.pulsar.broker.authentication.HttpAuthDataWrapper;
 import org.apache.pulsar.broker.authorization.AuthorizationService;
+import org.apache.pulsar.broker.resources.NamespaceResources;
+import org.apache.pulsar.broker.resources.PulsarResources;
+import org.apache.pulsar.broker.resources.TenantResources;
 import org.apache.pulsar.client.admin.Namespaces;
 import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.admin.PulsarAdminException;
 import org.apache.pulsar.client.admin.Tenants;
 import org.apache.pulsar.client.api.PulsarClientException;
+import org.apache.pulsar.common.configuration.PulsarConfigurationLoader;
 import org.apache.pulsar.common.functions.FunctionConfig;
+import org.apache.pulsar.common.naming.NamespaceName;
+import org.apache.pulsar.common.policies.data.AuthAction;
 import org.apache.pulsar.common.policies.data.FunctionInstanceStatsImpl;
 import org.apache.pulsar.common.policies.data.FunctionStatsImpl;
+import org.apache.pulsar.common.policies.data.Policies;
 import org.apache.pulsar.common.policies.data.TenantInfo;
 import org.apache.pulsar.functions.api.Context;
 import org.apache.pulsar.functions.instance.InstanceConfig;
@@ -231,82 +239,51 @@ public class FunctionsImplTest {
         assertNotNull(functionStats.calculateOverall());
     }
 
+    // Suppress the deprecation warnings until we actually remove the deprecated method
+    @SuppressWarnings("deprecation")
     @Test
-    public void testIsAuthorizedRole() throws PulsarAdminException, InterruptedException, ExecutionException {
+    public void testIsAuthorizedRole() throws Exception {
 
-        TenantInfo tenantInfo = TenantInfo.builder().build();
         AuthenticationDataSource authenticationDataSource = mock(AuthenticationDataSource.class);
         FunctionsImpl functionImpl = spy(new FunctionsImpl(() -> mockedWorkerService));
-        AuthorizationService authorizationService = mock(AuthorizationService.class);
-        doReturn(authorizationService).when(mockedWorkerService).getAuthorizationService();
         WorkerConfig workerConfig = new WorkerConfig();
         workerConfig.setAuthorizationEnabled(true);
         workerConfig.setSuperUserRoles(Collections.singleton(superUser));
+        // TODO remove mocking by relying on TestPulsarResources. Can't do now because this commit needs to be
+        //  cherry picked back.
+        PulsarResources pulsarResources = mock(PulsarResources.class);
+        TenantResources tenantResources = mock(TenantResources.class);
+        when(pulsarResources.getTenantResources()).thenReturn(tenantResources);
+        TenantInfo tenantInfo = TenantInfo.builder().adminRoles(Collections.singleton("tenant-admin")).build();
+        when(tenantResources.getTenantAsync("test-tenant"))
+                .thenReturn(CompletableFuture.completedFuture(Optional.of(tenantInfo)));
+        NamespaceResources namespaceResources = mock(NamespaceResources.class);
+        when(pulsarResources.getNamespaceResources()).thenReturn(namespaceResources);
+        Policies p = new Policies();
+        p.auth_policies.getNamespaceAuthentication().put("test-function-user", Set.of(AuthAction.functions));
+        when(namespaceResources.getPoliciesAsync(NamespaceName.get("test-tenant/test-ns")))
+                .thenReturn(CompletableFuture.completedFuture(Optional.of(p)));
+
+        AuthorizationService authorizationService = new AuthorizationService(
+                PulsarConfigurationLoader.convertFrom(workerConfig), pulsarResources);
         doReturn(workerConfig).when(mockedWorkerService).getWorkerConfig();
+        doReturn(authorizationService).when(mockedWorkerService).getAuthorizationService();
 
         // test super user
         assertTrue(functionImpl.isAuthorizedRole("test-tenant", "test-ns", superUser, authenticationDataSource));
+        assertTrue(functionImpl.isSuperUser(superUser, null));
 
-        // test pulsar super user
-        final String pulsarSuperUser = "pulsarSuperUser";
-        when(authorizationService.isSuperUser(eq(pulsarSuperUser), any()))
-            .thenReturn(CompletableFuture.completedFuture(true));
-        assertTrue(functionImpl.isAuthorizedRole("test-tenant", "test-ns", pulsarSuperUser, authenticationDataSource));
-        assertTrue(functionImpl.isSuperUser(pulsarSuperUser, null));
-
-        // test normal user
-        functionImpl = spy(new FunctionsImpl(() -> mockedWorkerService));
-        doReturn(false).when(functionImpl).allowFunctionOps(any(), any());
-        Tenants tenants = mock(Tenants.class);
-        when(tenants.getTenantInfo(any())).thenReturn(tenantInfo);
-        PulsarAdmin admin = mock(PulsarAdmin.class);
-        when(admin.tenants()).thenReturn(tenants);
-        when(this.mockedWorkerService.getBrokerAdmin()).thenReturn(admin);
-        when(authorizationService.isTenantAdmin("test-tenant", "test-user", tenantInfo, authenticationDataSource))
-                .thenReturn(CompletableFuture.completedFuture(false));
-        when(authorizationService.isSuperUser(eq("test-user"), any()))
-                .thenReturn(CompletableFuture.completedFuture(false));
-        assertFalse(functionImpl.isAuthorizedRole("test-tenant", "test-ns", "test-user", authenticationDataSource));
+        // test normal user with no permissions
+        assertFalse(functionImpl.isAuthorizedRole("test-tenant", "test-ns", "test-non-admin-user",
+                authenticationDataSource));
 
         // if user is tenant admin
-        functionImpl = spy(new FunctionsImpl(() -> mockedWorkerService));
-        doReturn(false).when(functionImpl).allowFunctionOps(any(), any());
-        tenants = mock(Tenants.class);
-        tenantInfo = TenantInfo.builder().adminRoles(Collections.singleton("test-user")).build();
-        when(tenants.getTenantInfo(any())).thenReturn(tenantInfo);
-
-        admin = mock(PulsarAdmin.class);
-        when(admin.tenants()).thenReturn(tenants);
-        when(this.mockedWorkerService.getBrokerAdmin()).thenReturn(admin);
-        when(authorizationService.isTenantAdmin("test-tenant", "test-user", tenantInfo, authenticationDataSource))
-                .thenReturn(CompletableFuture.completedFuture(true));
-        when(authorizationService.isSuperUser("test-user", authenticationDataSource))
-                .thenReturn(CompletableFuture.completedFuture(false));
-        assertTrue(functionImpl.isAuthorizedRole("test-tenant", "test-ns", "test-user", authenticationDataSource));
+        assertTrue(functionImpl.isAuthorizedRole("test-tenant", "test-ns", "tenant-admin", authenticationDataSource));
 
         // test user allow function action
-        functionImpl = spy(new FunctionsImpl(() -> mockedWorkerService));
-        doReturn(true).when(functionImpl).allowFunctionOps(any(), any());
-        tenants = mock(Tenants.class);
-        tenantInfo = TenantInfo.builder().build();
-        when(tenants.getTenantInfo(any())).thenReturn(tenantInfo);
-
-        admin = mock(PulsarAdmin.class);
-        when(admin.tenants()).thenReturn(tenants);
-        when(this.mockedWorkerService.getBrokerAdmin()).thenReturn(admin);
-        when(authorizationService.isTenantAdmin("test-tenant", "test-user", tenantInfo, authenticationDataSource))
-                .thenReturn(CompletableFuture.completedFuture(true));
-        assertTrue(functionImpl.isAuthorizedRole("test-tenant", "test-ns", "test-user", authenticationDataSource));
+        assertTrue(functionImpl.isAuthorizedRole("test-tenant", "test-ns", "test-function-user", authenticationDataSource));
 
         // test role is null
-        functionImpl = spy(new FunctionsImpl(() -> mockedWorkerService));
-        doReturn(true).when(functionImpl).allowFunctionOps(any(), any());
-        tenants = mock(Tenants.class);
-        when(tenants.getTenantInfo(any())).thenReturn(TenantInfo.builder().build());
-
-        admin = mock(PulsarAdmin.class);
-        when(admin.tenants()).thenReturn(tenants);
-        when(this.mockedWorkerService.getBrokerAdmin()).thenReturn(admin);
         assertFalse(functionImpl.isAuthorizedRole("test-tenant", "test-ns", null, authenticationDataSource));
     }
 
