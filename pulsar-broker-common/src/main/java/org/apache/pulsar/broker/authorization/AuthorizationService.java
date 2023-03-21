@@ -445,7 +445,7 @@ public class AuthorizationService {
                                             SocketAddress remoteAddress,
                                             boolean allowNonProxyPrincipalsToBeEqual) {
         String errorMsg = null;
-        if (conf.getProxyRoles().contains(authenticatedPrincipal)) {
+        if (authenticatedPrincipal != null && conf.getProxyRoles().contains(authenticatedPrincipal)) {
             if (StringUtils.isBlank(originalPrincipal)) {
                 errorMsg = "originalPrincipal must be provided when connecting with a proxy role.";
             } else if (conf.getProxyRoles().contains(originalPrincipal)) {
