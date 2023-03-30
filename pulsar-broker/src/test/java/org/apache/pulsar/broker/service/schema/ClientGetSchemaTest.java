@@ -20,16 +20,14 @@ package org.apache.pulsar.broker.service.schema;
 
 import static org.apache.pulsar.common.naming.TopicName.PUBLIC_TENANT;
 import static org.apache.pulsar.schema.compatibility.SchemaCompatibilityCheckTest.randomName;
-import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertEquals;
-
+import static org.testng.Assert.assertNotEquals;
+import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import java.util.function.Supplier;
 import lombok.Cleanup;
-
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.ProducerConsumerBase;
@@ -45,8 +43,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-
-import com.google.common.collect.Sets;
 
 @Test(groups = "broker")
 public class ClientGetSchemaTest extends ProducerConsumerBase {

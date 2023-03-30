@@ -20,7 +20,6 @@ package org.apache.pulsar.broker.transaction;
 
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
-
 import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.NavigableMap;

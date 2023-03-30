@@ -19,7 +19,6 @@
 package org.apache.pulsar.tests.integration.io.sinks;
 
 import java.util.Map;
-
 import org.apache.pulsar.tests.integration.containers.HdfsContainer;
 import org.apache.pulsar.tests.integration.topologies.PulsarCluster;
 

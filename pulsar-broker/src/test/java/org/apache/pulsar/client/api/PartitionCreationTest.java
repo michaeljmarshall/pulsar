@@ -18,6 +18,7 @@
  */
 package org.apache.pulsar.client.api;
 
+import java.util.concurrent.TimeUnit;
 import org.apache.pulsar.client.admin.PulsarAdminException;
 import org.apache.pulsar.client.impl.MultiTopicsConsumerImpl;
 import org.apache.pulsar.common.naming.TopicDomain;
@@ -29,8 +30,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-
-import java.util.concurrent.TimeUnit;
 
 @Test(groups = "broker-api")
 public class PartitionCreationTest extends ProducerConsumerBase {

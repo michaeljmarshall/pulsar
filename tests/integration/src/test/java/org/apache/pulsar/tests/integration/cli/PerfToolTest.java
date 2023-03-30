@@ -19,6 +19,8 @@
 package org.apache.pulsar.tests.integration.cli;
 
 import static org.testng.Assert.fail;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import org.apache.pulsar.tests.integration.containers.ChaosContainer;
 import org.apache.pulsar.tests.integration.containers.PulsarContainer;
 import org.apache.pulsar.tests.integration.containers.ZKContainer;
@@ -26,8 +28,6 @@ import org.apache.pulsar.tests.integration.docker.ContainerExecResult;
 import org.apache.pulsar.tests.integration.messaging.TopicMessagingBase;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 public class PerfToolTest extends TopicMessagingBase {
 

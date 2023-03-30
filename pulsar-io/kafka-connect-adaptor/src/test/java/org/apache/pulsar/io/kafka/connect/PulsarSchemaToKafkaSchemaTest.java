@@ -18,7 +18,13 @@
  */
 package org.apache.pulsar.io.kafka.connect;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 import com.google.common.collect.Lists;
+import java.math.BigInteger;
+import java.util.List;
+import java.util.Map;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
@@ -34,14 +40,6 @@ import org.apache.pulsar.io.kafka.connect.schema.KafkaConnectData;
 import org.apache.pulsar.io.kafka.connect.schema.PulsarSchemaToKafkaSchema;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-
-import java.math.BigInteger;
-import java.util.List;
-import java.util.Map;
-
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
 
 /**
  * Test the conversion of PulsarSchema To KafkaSchema\.

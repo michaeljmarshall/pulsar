@@ -18,19 +18,17 @@
  */
 package org.apache.pulsar.io.elasticsearch;
 
-import org.apache.pulsar.io.core.SinkContext;
-import org.mockito.Mockito;
-import org.testng.annotations.Test;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.expectThrows;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import org.apache.pulsar.io.core.SinkContext;
+import org.mockito.Mockito;
+import org.testng.annotations.Test;
 
 
 public class ElasticSearchConfigTests {

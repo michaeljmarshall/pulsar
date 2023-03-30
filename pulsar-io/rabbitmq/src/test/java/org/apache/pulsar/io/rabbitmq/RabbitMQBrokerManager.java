@@ -18,13 +18,12 @@
  */
 package org.apache.pulsar.io.rabbitmq;
 
-import org.apache.qpid.server.Broker;
-import org.apache.qpid.server.BrokerOptions;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.apache.qpid.server.Broker;
+import org.apache.qpid.server.BrokerOptions;
 
 public class RabbitMQBrokerManager {
 

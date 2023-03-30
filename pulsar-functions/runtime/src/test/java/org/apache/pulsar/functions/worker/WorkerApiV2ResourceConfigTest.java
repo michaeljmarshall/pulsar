@@ -23,11 +23,9 @@ import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URL;
 import java.util.Locale;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.pulsar.functions.auth.KubernetesSecretsTokenAuthProvider;
 import org.apache.pulsar.functions.runtime.kubernetes.KubernetesRuntimeFactory;
 import org.testng.annotations.Test;

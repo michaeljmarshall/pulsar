@@ -19,7 +19,6 @@
 package org.apache.pulsar.client.impl.schema.generic;
 
 import static org.testng.Assert.assertEquals;
-
 import org.apache.pulsar.client.api.schema.GenericRecord;
 import org.apache.pulsar.client.api.schema.RecordSchemaBuilder;
 import org.apache.pulsar.client.api.schema.SchemaBuilder;

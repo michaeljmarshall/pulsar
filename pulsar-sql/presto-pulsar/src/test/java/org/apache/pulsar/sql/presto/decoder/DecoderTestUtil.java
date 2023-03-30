@@ -18,6 +18,11 @@
  */
 package org.apache.pulsar.sql.presto.decoder;
 
+import static io.trino.spi.type.UnscaledDecimal128Arithmetic.UNSCALED_DECIMAL_128_SLICE_LENGTH;
+import static io.trino.testing.TestingConnectorSession.SESSION;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
 import io.airlift.slice.Slice;
 import io.trino.decoder.DecoderColumnHandle;
 import io.trino.decoder.FieldValueProvider;
@@ -31,10 +36,6 @@ import io.trino.spi.type.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Map;
-
-import static io.trino.spi.type.UnscaledDecimal128Arithmetic.UNSCALED_DECIMAL_128_SLICE_LENGTH;
-import static io.trino.testing.TestingConnectorSession.SESSION;
-import static org.testng.Assert.*;
 
 /**
  * Abstract util superclass for  XXDecoderTestUtil (e.g. AvroDecoderTestUtil 、JsonDecoderTestUtil)

@@ -18,16 +18,14 @@
  */
 package org.apache.pulsar.io.influxdb.v1;
 
-import org.influxdb.InfluxDB;
-import org.testng.annotations.Test;
-
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
+import org.influxdb.InfluxDB;
+import org.testng.annotations.Test;
 
 /**
  * InfluxDBSinkConfig test

@@ -18,16 +18,14 @@
  */
 package org.apache.pulsar.io.elasticsearch;
 
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
-
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
-
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 public class RandomExponentialRetryTests {
 

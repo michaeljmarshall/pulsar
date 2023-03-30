@@ -18,14 +18,13 @@
  */
 package org.apache.pulsar.broker.service;
 
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.common.policies.data.PublishRate;
 import org.awaitility.Awaitility;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 @Test(groups = "broker")
 public class PrecisTopicPublishRateThrottleTest extends BrokerTestBase{

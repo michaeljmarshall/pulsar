@@ -18,6 +18,12 @@
  */
 package org.apache.pulsar.io.hbase.sink;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hadoop.hbase.client.Get;
@@ -43,14 +49,6 @@ import org.apache.pulsar.io.hbase.TableUtils;
 import org.mockito.Mock;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * hbase Sink test

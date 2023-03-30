@@ -21,7 +21,6 @@ package org.apache.pulsar.broker.loadbalance;
 import static org.apache.pulsar.common.util.PortManager.nextLockedFreePort;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
-
 import java.net.URI;
 import java.util.Optional;
 import lombok.Cleanup;

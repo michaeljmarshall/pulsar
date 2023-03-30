@@ -20,6 +20,8 @@ package org.apache.pulsar.tests.integration.plugins;
 
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import lombok.Cleanup;
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.ConsumerBuilder;
@@ -32,8 +34,6 @@ import org.apache.pulsar.client.api.SubscriptionType;
 import org.apache.pulsar.tests.integration.messaging.TopicMessagingBase;
 import org.apache.pulsar.tests.integration.topologies.PulsarClusterSpec;
 import org.testng.annotations.Test;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 
 
 public class TestBrokerInterceptors extends TopicMessagingBase {

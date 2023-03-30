@@ -20,7 +20,6 @@ package org.apache.pulsar.io.kinesis;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
-
 import java.io.File;
 import java.io.IOException;
 import java.time.ZoneOffset;
@@ -29,7 +28,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.pulsar.io.common.IOConfigUtils;
 import org.apache.pulsar.io.core.SourceContext;
 import org.mockito.Mockito;

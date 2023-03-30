@@ -21,11 +21,12 @@
 
 """python_instance.py: Python Instance for running python functions
 """
-from concurrent import futures
-from log import Log
 import grpc
+from concurrent import futures
 
 import InstanceCommunication_pb2_grpc
+from log import Log
+
 
 class InstanceCommunicationServicer(InstanceCommunication_pb2_grpc.InstanceControlServicer):
   """Provides methods that implement functionality of route guide server."""

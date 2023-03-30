@@ -18,7 +18,12 @@
  */
 package org.apache.pulsar.broker.namespace;
 
+import static org.testng.Assert.assertTrue;
 import com.google.common.collect.Sets;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.pulsar.broker.service.BrokerTestBase;
 import org.apache.pulsar.client.api.Producer;
@@ -29,13 +34,6 @@ import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import static org.testng.Assert.assertTrue;
 
 @Test(groups = "broker")
 public class NamespaceOwnershipListenerTests extends BrokerTestBase {

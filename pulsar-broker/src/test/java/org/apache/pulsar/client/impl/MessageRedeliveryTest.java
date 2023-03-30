@@ -18,10 +18,12 @@
  */
 package org.apache.pulsar.client.impl;
 
-import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
+import com.google.common.collect.Sets;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
@@ -49,8 +51,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import com.google.common.collect.Sets;
-import io.netty.util.concurrent.DefaultThreadFactory;
 
 @Test(groups = "broker-impl")
 public class MessageRedeliveryTest extends ProducerConsumerBase {

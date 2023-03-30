@@ -20,6 +20,7 @@ package org.apache.pulsar.client.impl;
 
 import static org.mockito.Mockito.spy;
 import com.google.common.collect.Sets;
+import io.jsonwebtoken.SignatureAlgorithm;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,8 +30,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
-
-import io.jsonwebtoken.SignatureAlgorithm;
+import javax.crypto.SecretKey;
 import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pulsar.broker.authentication.AuthenticationProviderTls;
@@ -54,8 +54,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-
-import javax.crypto.SecretKey;
 
 // TLS authentication and authorization based on KeyStore type config.
 @Slf4j

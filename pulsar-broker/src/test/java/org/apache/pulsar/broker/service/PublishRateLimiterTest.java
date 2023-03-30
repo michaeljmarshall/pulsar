@@ -18,19 +18,17 @@
  */
 package org.apache.pulsar.broker.service;
 
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.concurrent.ScheduledFuture;
 import org.apache.pulsar.common.policies.data.Policies;
 import org.apache.pulsar.common.policies.data.PublishRate;
 import org.apache.pulsar.common.util.RateLimiter;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.concurrent.ScheduledFuture;
-
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
 
 @Test(groups = "broker")
 public class PublishRateLimiterTest {

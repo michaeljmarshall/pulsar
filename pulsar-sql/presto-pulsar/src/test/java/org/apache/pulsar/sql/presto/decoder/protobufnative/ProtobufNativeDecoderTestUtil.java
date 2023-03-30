@@ -18,6 +18,12 @@
  */
 package org.apache.pulsar.sql.presto.decoder.protobufnative;
 
+import static java.lang.String.format;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.EnumValue;
@@ -27,17 +33,9 @@ import io.trino.spi.type.MapType;
 import io.trino.spi.type.RowType;
 import io.trino.spi.type.SqlVarbinary;
 import io.trino.spi.type.Type;
-import org.apache.pulsar.sql.presto.decoder.DecoderTestUtil;
-
 import java.util.List;
 import java.util.Map;
-
-import static java.lang.String.format;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
-import static org.testng.Assert.assertTrue;
-import static org.testng.Assert.fail;
+import org.apache.pulsar.sql.presto.decoder.DecoderTestUtil;
 
 /**
  * TestUtil for ProtobufNativeDecoder.

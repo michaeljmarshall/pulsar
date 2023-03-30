@@ -19,7 +19,6 @@
 package org.apache.pulsar.client.impl.schema.generic;
 
 import static org.testng.Assert.assertEquals;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import lombok.extern.slf4j.Slf4j;

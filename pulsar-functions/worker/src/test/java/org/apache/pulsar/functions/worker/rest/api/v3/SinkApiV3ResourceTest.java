@@ -52,7 +52,7 @@ import javax.ws.rs.core.Response;
 import org.apache.distributedlog.api.namespace.Namespace;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
-import org.apache.pulsar.broker.authentication.HttpAuthDataWrapper;
+import org.apache.pulsar.broker.authentication.Authentication;
 import org.apache.pulsar.client.admin.Functions;
 import org.apache.pulsar.client.admin.Namespaces;
 import org.apache.pulsar.client.admin.Packages;
@@ -1534,7 +1534,7 @@ public class SinkApiV3ResourceTest {
                 tenant,
                 namespace,
                 sink,
-                HttpAuthDataWrapper.builder().build()
+                Authentication.builder().build()
         );
 
     }
@@ -1544,7 +1544,7 @@ public class SinkApiV3ResourceTest {
                 tenant,
                 namespace,
                 sink,
-                HttpAuthDataWrapper.builder().build()
+                Authentication.builder().build()
         );
     }
 
@@ -1638,7 +1638,7 @@ public class SinkApiV3ResourceTest {
         resource.listFunctions(
                 tenant,
                 namespace,
-                HttpAuthDataWrapper.builder().build()
+                Authentication.builder().build()
         );
 
     }
@@ -1647,7 +1647,7 @@ public class SinkApiV3ResourceTest {
         return resource.listFunctions(
                 tenant,
                 namespace,
-                HttpAuthDataWrapper.builder().build()
+                Authentication.builder().build()
         );
     }
 

@@ -20,17 +20,13 @@ package org.apache.pulsar.io.hdfs3.sink;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
-
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.pulsar.io.hdfs3.Compression;
-import org.apache.pulsar.io.hdfs3.sink.HdfsSinkConfig;
 import org.testng.annotations.Test;
-
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
 
 public class HdfsSinkConfigTests {

@@ -20,7 +20,6 @@ package org.apache.pulsar.proxy.server;
 
 import static java.util.Objects.requireNonNull;
 import static org.mockito.Mockito.doReturn;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;

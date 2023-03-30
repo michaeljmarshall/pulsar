@@ -19,11 +19,9 @@
 package org.apache.pulsar.proxy.server;
 
 import static org.mockito.Mockito.doReturn;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.util.Optional;
-
 import org.apache.pulsar.broker.auth.MockedPulsarServiceBaseTest;
 import org.apache.pulsar.broker.authentication.AuthenticationService;
 import org.apache.pulsar.common.configuration.PulsarConfigurationLoader;

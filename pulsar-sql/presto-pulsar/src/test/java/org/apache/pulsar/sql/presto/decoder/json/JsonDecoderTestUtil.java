@@ -18,21 +18,28 @@
  */
 package org.apache.pulsar.sql.presto.decoder.json;
 
+import static io.trino.spi.type.VarcharType.VARCHAR;
+import static java.lang.String.format;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Iterators;
 import io.trino.spi.block.Block;
-import io.trino.spi.type.*;
-import org.apache.pulsar.sql.presto.decoder.DecoderTestUtil;
-
+import io.trino.spi.type.ArrayType;
+import io.trino.spi.type.MapType;
+import io.trino.spi.type.RowType;
+import io.trino.spi.type.SqlVarbinary;
+import io.trino.spi.type.Type;
+import io.trino.spi.type.VarcharType;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
-
-import static io.trino.spi.type.VarcharType.VARCHAR;
-import static java.lang.String.format;
-import static org.testng.Assert.*;
+import org.apache.pulsar.sql.presto.decoder.DecoderTestUtil;
 
 /**
  *

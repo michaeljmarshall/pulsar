@@ -22,7 +22,6 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
-
 import io.debezium.config.Configuration;
 import io.debezium.connector.mysql.antlr.MySqlAntlrDdlParser;
 import io.debezium.relational.Tables;
@@ -31,13 +30,11 @@ import io.debezium.relational.history.DatabaseHistory;
 import io.debezium.relational.history.DatabaseHistoryListener;
 import io.debezium.text.ParsingException;
 import io.debezium.util.Collect;
-
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.pulsar.client.api.ClientBuilder;
 import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.ProducerConsumerBase;

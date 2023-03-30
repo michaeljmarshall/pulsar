@@ -19,11 +19,9 @@
 package org.apache.pulsar.tests.integration.python;
 
 import static org.testng.Assert.assertEquals;
-
 import java.util.function.Supplier;
 import lombok.Cleanup;
 import lombok.Data;
-
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.Producer;

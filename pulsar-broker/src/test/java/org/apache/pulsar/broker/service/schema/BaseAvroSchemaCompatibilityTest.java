@@ -18,14 +18,13 @@
  */
 package org.apache.pulsar.broker.service.schema;
 
+import java.util.Arrays;
+import java.util.Collections;
 import org.apache.pulsar.common.policies.data.SchemaCompatibilityStrategy;
 import org.apache.pulsar.common.protocol.schema.SchemaData;
 import org.apache.pulsar.common.schema.SchemaType;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import java.util.Arrays;
-import java.util.Collections;
 
 public abstract class BaseAvroSchemaCompatibilityTest {
 

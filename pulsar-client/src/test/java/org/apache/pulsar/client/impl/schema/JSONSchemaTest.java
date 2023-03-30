@@ -24,7 +24,6 @@ import static org.apache.pulsar.client.impl.schema.SchemaTestUtils.SCHEMA_JSON_N
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static org.testng.AssertJUnit.assertSame;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;

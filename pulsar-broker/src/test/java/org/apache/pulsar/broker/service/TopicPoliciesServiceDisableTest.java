@@ -19,7 +19,6 @@
 package org.apache.pulsar.broker.service;
 
 import org.apache.pulsar.broker.auth.MockedPulsarServiceBaseTest;
-
 import org.apache.pulsar.common.naming.TopicName;
 import org.apache.pulsar.common.policies.data.TopicPolicies;
 import org.testng.Assert;

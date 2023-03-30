@@ -18,6 +18,9 @@
  */
 package org.apache.pulsar.client.impl.schema.generic;
 
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import java.util.concurrent.CompletableFuture;
 import org.apache.pulsar.client.api.schema.GenericRecord;
 import org.apache.pulsar.client.api.schema.SchemaDefinition;
@@ -28,10 +31,6 @@ import org.apache.pulsar.client.impl.schema.SchemaTestUtils.FooV2;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class GenericAvroSchemaTest {
 

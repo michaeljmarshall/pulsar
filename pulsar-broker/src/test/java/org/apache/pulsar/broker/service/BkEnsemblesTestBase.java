@@ -18,9 +18,10 @@
  */
 package org.apache.pulsar.broker.service;
 
+import com.google.common.collect.Sets;
 import java.util.Optional;
 import java.util.Properties;
-
+import lombok.extern.slf4j.Slf4j;
 import org.apache.pulsar.broker.PulsarService;
 import org.apache.pulsar.broker.ServiceConfiguration;
 import org.apache.pulsar.client.admin.PulsarAdmin;
@@ -32,10 +33,6 @@ import org.apache.pulsar.zookeeper.LocalBookkeeperEnsemble;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
-
-import com.google.common.collect.Sets;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Test base for tests requires a bk ensemble.

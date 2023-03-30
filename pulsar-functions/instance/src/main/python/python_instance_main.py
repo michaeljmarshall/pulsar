@@ -23,28 +23,24 @@
 """python_instance_main.py: The main for the Python Instance
 """
 import argparse
+import inspect
+import json
 import logging
 import os
-import sys
+import pulsar
 import signal
+import sys
 import time
 import zipfile
-import json
-import inspect
-import threading
-
-import pulsar
+from google.protobuf import json_format
 
 import Function_pb2
 import log
-import server
-import python_instance
-import util
 # import prometheus_client
 import prometheus_client_fix
-
-from google.protobuf import json_format
-from bookkeeper.kv.client import Client
+import python_instance
+import server
+import util
 
 to_run = True
 Log = log.Log

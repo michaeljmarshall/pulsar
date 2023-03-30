@@ -23,6 +23,8 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import io.netty.buffer.ByteBufAllocator;
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeUnit;
 import lombok.Cleanup;
 import org.apache.pulsar.client.api.ProducerConsumerBase;
 import org.apache.pulsar.client.api.PulsarClient;
@@ -34,9 +36,6 @@ import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.TimeUnit;
 
 @Test(groups = "broker-impl")
 public class ProducerMemoryLimitTest extends ProducerConsumerBase {

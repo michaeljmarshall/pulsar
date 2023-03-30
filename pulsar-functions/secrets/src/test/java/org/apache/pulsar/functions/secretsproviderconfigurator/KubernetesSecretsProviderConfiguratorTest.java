@@ -19,11 +19,10 @@
 package org.apache.pulsar.functions.secretsproviderconfigurator;
 
 import com.google.gson.Gson;
+import java.util.HashMap;
 import org.apache.pulsar.functions.proto.Function;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import java.util.HashMap;
 
 /**
  * Unit test of {@link KubernetesSecretsProviderConfigurator}.

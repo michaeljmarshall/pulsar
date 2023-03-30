@@ -19,7 +19,6 @@
 package org.apache.pulsar.tests.integration.presto;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 import com.google.common.base.Stopwatch;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;

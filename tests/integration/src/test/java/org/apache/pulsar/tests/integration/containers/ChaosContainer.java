@@ -19,11 +19,9 @@
 package org.apache.pulsar.tests.integration.containers;
 
 import com.github.dockerjava.api.DockerClient;
-
 import java.util.Base64;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pulsar.tests.integration.docker.ContainerExecResult;
 import org.apache.pulsar.tests.integration.utils.DockerUtils;

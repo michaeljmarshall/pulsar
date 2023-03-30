@@ -66,7 +66,7 @@ public class Worker extends AdminResource implements Supplier<WorkerService> {
     @Path("/cluster")
     @Produces(MediaType.APPLICATION_JSON)
     public List<WorkerInfo> getCluster() {
-        return workers().getCluster(httpAuthDataWrapper());
+        return workers().getCluster(authentication());
     }
 
     @GET
@@ -81,7 +81,7 @@ public class Worker extends AdminResource implements Supplier<WorkerService> {
     @Path("/cluster/leader")
     @Produces(MediaType.APPLICATION_JSON)
     public WorkerInfo getClusterLeader() {
-        return workers().getClusterLeader(httpAuthDataWrapper());
+        return workers().getClusterLeader(authentication());
     }
 
     @GET
@@ -96,7 +96,7 @@ public class Worker extends AdminResource implements Supplier<WorkerService> {
     @Path("/assignments")
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String, Collection<String>> getAssignments() {
-        return workers().getAssignments(httpAuthDataWrapper());
+        return workers().getAssignments(authentication());
     }
 
     @GET
@@ -112,7 +112,7 @@ public class Worker extends AdminResource implements Supplier<WorkerService> {
     @Path("/connectors")
     @Produces(MediaType.APPLICATION_JSON)
     public List<ConnectorDefinition> getConnectorsList() throws IOException {
-        return workers().getListOfConnectors(httpAuthDataWrapper());
+        return workers().getListOfConnectors(authentication());
     }
 
     @PUT
@@ -126,7 +126,7 @@ public class Worker extends AdminResource implements Supplier<WorkerService> {
     })
     @Path("/rebalance")
     public void rebalance() {
-        workers().rebalance(uri.getRequestUri(), httpAuthDataWrapper());
+        workers().rebalance(uri.getRequestUri(), authentication());
     }
 
     @PUT
@@ -142,7 +142,7 @@ public class Worker extends AdminResource implements Supplier<WorkerService> {
     })
     @Path("/leader/drain")
     public void drainAtLeader(@QueryParam("workerId") String workerId) {
-        workers().drain(uri.getRequestUri(), workerId, httpAuthDataWrapper(), true);
+        workers().drain(uri.getRequestUri(), workerId, authentication(), true);
     }
 
     @PUT
@@ -158,7 +158,7 @@ public class Worker extends AdminResource implements Supplier<WorkerService> {
     })
     @Path("/drain")
     public void drain() {
-        workers().drain(uri.getRequestUri(), null, httpAuthDataWrapper(), false);
+        workers().drain(uri.getRequestUri(), null, authentication(), false);
     }
 
     @GET
@@ -172,7 +172,7 @@ public class Worker extends AdminResource implements Supplier<WorkerService> {
     })
     @Path("/leader/drain")
     public LongRunningProcessStatus getDrainStatusFromLeader(@QueryParam("workerId") String workerId) {
-        return workers().getDrainStatus(uri.getRequestUri(), workerId, httpAuthDataWrapper(), true);
+        return workers().getDrainStatus(uri.getRequestUri(), workerId, authentication(), true);
     }
 
     @GET
@@ -186,7 +186,7 @@ public class Worker extends AdminResource implements Supplier<WorkerService> {
     })
     @Path("/drain")
     public LongRunningProcessStatus getDrainStatus() {
-        return workers().getDrainStatus(uri.getRequestUri(), null, httpAuthDataWrapper(), false);
+        return workers().getDrainStatus(uri.getRequestUri(), null, authentication(), false);
     }
 
     @GET

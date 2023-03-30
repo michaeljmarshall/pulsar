@@ -18,6 +18,8 @@
  */
 package org.apache.pulsar.broker.service;
 
+import java.util.Optional;
+import java.util.Properties;
 import org.apache.pulsar.broker.PulsarServerException;
 import org.apache.pulsar.client.admin.internal.PulsarAdminImpl;
 import org.apache.pulsar.client.impl.PulsarClientImpl;
@@ -28,9 +30,6 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import java.util.Optional;
-import java.util.Properties;
 
 public class BrokerInternalClientConfigurationOverrideTest extends BrokerTestBase {
 

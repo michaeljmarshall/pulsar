@@ -24,7 +24,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
-
 import com.google.common.collect.Sets;
 import java.time.Duration;
 import java.util.HashSet;

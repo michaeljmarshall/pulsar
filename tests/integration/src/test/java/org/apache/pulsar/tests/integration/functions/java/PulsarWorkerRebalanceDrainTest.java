@@ -18,6 +18,9 @@
  */
 package org.apache.pulsar.tests.integration.functions.java;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
+import com.fasterxml.jackson.databind.MappingIterator;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,8 +29,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.fasterxml.jackson.databind.MappingIterator;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.pulsar.client.admin.PulsarAdmin;
@@ -41,8 +42,6 @@ import org.apache.pulsar.tests.integration.functions.utils.CommandGenerator.Runt
 import org.apache.pulsar.tests.integration.topologies.FunctionRuntimeType;
 import org.apache.pulsar.tests.integration.topologies.PulsarCluster;
 import org.testng.annotations.Test;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 @Slf4j
 public abstract class PulsarWorkerRebalanceDrainTest extends PulsarFunctionsTest {

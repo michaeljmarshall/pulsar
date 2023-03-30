@@ -19,7 +19,6 @@
 package org.apache.pulsar.client.api;
 
 import static org.mockito.Mockito.spy;
-
 import com.google.common.collect.Sets;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

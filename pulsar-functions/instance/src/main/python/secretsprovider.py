@@ -21,8 +21,9 @@
 
 """secretsprovider.py: Interfaces and definitions for Secret Providers
 """
-from abc import abstractmethod
 import os
+from abc import abstractmethod
+
 
 class SecretsProvider:
   """Interface for providing secrets information runtime"""

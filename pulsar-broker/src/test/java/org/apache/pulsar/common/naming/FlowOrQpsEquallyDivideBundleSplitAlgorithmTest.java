@@ -18,6 +18,10 @@
  */
 package org.apache.pulsar.common.naming;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.testng.Assert.assertTrue;
 import com.google.common.hash.Hashing;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,10 +32,6 @@ import java.util.concurrent.CompletableFuture;
 import org.apache.pulsar.broker.namespace.NamespaceService;
 import org.apache.pulsar.common.policies.data.stats.TopicStatsImpl;
 import org.testng.annotations.Test;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.doReturn;
-import static org.testng.Assert.assertTrue;
 
 public class FlowOrQpsEquallyDivideBundleSplitAlgorithmTest {
 

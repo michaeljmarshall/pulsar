@@ -20,7 +20,6 @@
 from __future__ import unicode_literals
 
 import threading
-
 from prometheus_client import core
 from prometheus_client.exposition import MetricsHandler
 

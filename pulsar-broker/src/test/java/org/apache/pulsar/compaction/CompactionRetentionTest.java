@@ -19,12 +19,10 @@
 package org.apache.pulsar.compaction;
 
 import static org.testng.Assert.assertEquals;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;

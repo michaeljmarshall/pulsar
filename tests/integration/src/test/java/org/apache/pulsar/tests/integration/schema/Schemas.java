@@ -31,17 +31,15 @@
  */
 package org.apache.pulsar.tests.integration.schema;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import org.apache.avro.reflect.AvroDefault;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.avro.reflect.AvroDefault;
 
 /**
  * Keep a list of schemas for testing.

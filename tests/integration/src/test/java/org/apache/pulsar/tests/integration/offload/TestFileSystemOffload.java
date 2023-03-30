@@ -18,12 +18,11 @@
  */
 package org.apache.pulsar.tests.integration.offload;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Supplier;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.annotations.Test;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 public class TestFileSystemOffload extends TestBaseOffload {

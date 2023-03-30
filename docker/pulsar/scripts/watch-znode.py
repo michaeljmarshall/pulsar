@@ -18,7 +18,10 @@
 # under the License.
 #
 
-import sys, getopt, time, logging
+import getopt
+import logging
+import sys
+import time
 from kazoo.client import KazooClient
 from kazoo.exceptions import NodeExistsError
 from kazoo.retry import KazooRetry

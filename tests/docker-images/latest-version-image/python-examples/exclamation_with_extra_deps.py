@@ -18,7 +18,9 @@
 #
 
 from pulsar import Function
+
 from exclamation_lib import exclamation
+
 
 # The classic ExclamationFunction that appends an exclamation at the end
 # of the input

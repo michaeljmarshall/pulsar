@@ -19,8 +19,8 @@
 package org.apache.pulsar.broker.auth;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import javax.naming.AuthenticationException;
 import java.util.concurrent.CompletableFuture;
+import javax.naming.AuthenticationException;
 import org.apache.pulsar.broker.authentication.AuthenticationDataCommand;
 import org.apache.pulsar.broker.authentication.AuthenticationDataSource;
 import org.apache.pulsar.broker.authentication.AuthenticationProvider;

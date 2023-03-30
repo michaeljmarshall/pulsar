@@ -21,13 +21,11 @@ package org.apache.pulsar.io.twitter;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.testng.annotations.Test;
 
 public class TwitterFireHoseConfigTests {

@@ -20,12 +20,10 @@ package org.apache.pulsar.broker.service.schema;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
-
 import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.CompletableFuture;
-
 import lombok.Cleanup;
 import org.apache.pulsar.broker.service.BkEnsemblesTestBase;
 import org.apache.pulsar.client.api.Consumer;

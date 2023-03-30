@@ -19,8 +19,9 @@
 #
 
 import argparse
-import traceback
 import sys
+import traceback
+
 try:
     from google.protobuf.text_format import Merge
     from google.protobuf.text_format import MessageToString

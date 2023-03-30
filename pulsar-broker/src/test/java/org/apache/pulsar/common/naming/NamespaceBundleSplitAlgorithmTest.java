@@ -19,10 +19,12 @@
 package org.apache.pulsar.common.naming;
 
 
+import static org.apache.pulsar.common.naming.NamespaceBundleSplitAlgorithm.FLOW_OR_QPS_EQUALLY_DIVIDE;
+import static org.apache.pulsar.common.naming.NamespaceBundleSplitAlgorithm.RANGE_EQUALLY_DIVIDE_NAME;
+import static org.apache.pulsar.common.naming.NamespaceBundleSplitAlgorithm.SPECIFIED_POSITIONS_DIVIDE;
+import static org.apache.pulsar.common.naming.NamespaceBundleSplitAlgorithm.TOPIC_COUNT_EQUALLY_DIVIDE;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import static org.apache.pulsar.common.naming.NamespaceBundleSplitAlgorithm.*;
 
 
 public class NamespaceBundleSplitAlgorithmTest {

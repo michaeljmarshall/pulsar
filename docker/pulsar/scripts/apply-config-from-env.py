@@ -25,7 +25,8 @@
 ## ./apply-config-from-env file.conf
 ##
 
-import os, sys
+import os
+import sys
 
 if len(sys.argv) < 2:
     print('Usage: %s' % (sys.argv[0]))

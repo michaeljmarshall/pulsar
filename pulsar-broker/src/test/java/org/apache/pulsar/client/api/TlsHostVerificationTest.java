@@ -20,7 +20,6 @@ package org.apache.pulsar.client.api;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.admin.PulsarAdminException;
 import org.apache.pulsar.client.impl.auth.AuthenticationTls;

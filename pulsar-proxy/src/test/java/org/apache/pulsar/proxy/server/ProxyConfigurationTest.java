@@ -19,9 +19,7 @@
 package org.apache.pulsar.proxy.server;
 
 
-import org.apache.pulsar.common.configuration.PulsarConfigurationLoader;
-import org.testng.annotations.Test;
-
+import static org.testng.Assert.assertEquals;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.File;
@@ -34,8 +32,8 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-
-import static org.testng.Assert.assertEquals;
+import org.apache.pulsar.common.configuration.PulsarConfigurationLoader;
+import org.testng.annotations.Test;
 
 @Test(groups = "broker")
 public class ProxyConfigurationTest {

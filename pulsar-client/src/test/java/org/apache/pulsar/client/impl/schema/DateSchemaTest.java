@@ -20,10 +20,9 @@ package org.apache.pulsar.client.impl.schema;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import java.util.Date;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import java.util.Date;
 
 public class DateSchemaTest {
 

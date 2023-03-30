@@ -20,9 +20,7 @@ package org.apache.pulsar.io;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.mockito.Mockito.spy;
-
 import com.google.common.collect.Sets;
-
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Collections;
@@ -31,7 +29,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
 import org.apache.pulsar.broker.PulsarService;
 import org.apache.pulsar.broker.ServiceConfiguration;
 import org.apache.pulsar.broker.ServiceConfigurationUtils;

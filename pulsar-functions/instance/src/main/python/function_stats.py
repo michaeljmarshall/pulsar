@@ -17,13 +17,14 @@
 # under the License.
 #
 
-import traceback
-import time
-import util
 import sys
-
+import time
+import traceback
 from prometheus_client import Counter, Summary, Gauge
 from ratelimit import limits, RateLimitException
+
+import util
+
 
 # We keep track of the following metrics
 class Stats(object):

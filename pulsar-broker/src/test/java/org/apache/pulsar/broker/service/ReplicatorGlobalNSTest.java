@@ -19,6 +19,8 @@
 package org.apache.pulsar.broker.service;
 
 import com.google.common.collect.Sets;
+import java.lang.reflect.Method;
+import java.util.concurrent.TimeUnit;
 import lombok.Cleanup;
 import org.apache.pulsar.broker.auth.MockedPulsarServiceBaseTest;
 import org.apache.pulsar.client.api.MessageRoutingMode;
@@ -32,9 +34,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import java.lang.reflect.Method;
-import java.util.concurrent.TimeUnit;
 
 @Test(groups = "broker-impl")
 public class ReplicatorGlobalNSTest extends ReplicatorTestBase {

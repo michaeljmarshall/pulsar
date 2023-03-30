@@ -21,9 +21,6 @@ package org.apache.pulsar.utils;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
-import lombok.Cleanup;
-import org.apache.pulsar.common.util.collections.ConcurrentLongPairSet;
-import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -31,6 +28,9 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import lombok.Cleanup;
+import org.apache.pulsar.common.util.collections.ConcurrentLongPairSet;
+import org.testng.annotations.Test;
 
 @Test(groups = "utils")
 public class ConcurrentBitmapSortedLongPairSetTest {

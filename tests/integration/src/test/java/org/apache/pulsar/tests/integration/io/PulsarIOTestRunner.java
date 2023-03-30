@@ -21,7 +21,9 @@ package org.apache.pulsar.tests.integration.io;
 import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
+import lombok.Cleanup;
+import lombok.extern.slf4j.Slf4j;
+import net.jodah.failsafe.RetryPolicy;
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.Schema;
@@ -30,10 +32,6 @@ import org.apache.pulsar.client.impl.schema.KeyValueSchemaImpl;
 import org.apache.pulsar.common.schema.KeyValueEncodingType;
 import org.apache.pulsar.tests.integration.io.sinks.SinkTester;
 import org.apache.pulsar.tests.integration.topologies.PulsarCluster;
-
-import lombok.Cleanup;
-import lombok.extern.slf4j.Slf4j;
-import net.jodah.failsafe.RetryPolicy;
 
 @Slf4j
 public abstract class PulsarIOTestRunner {

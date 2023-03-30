@@ -23,7 +23,7 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import org.apache.pulsar.broker.authentication.HttpAuthDataWrapper;
+import org.apache.pulsar.broker.authentication.Authentication;
 import org.apache.pulsar.client.admin.LongRunningProcessStatus;
 import org.apache.pulsar.common.functions.WorkerInfo;
 import org.apache.pulsar.common.io.ConnectorDefinition;
@@ -36,78 +36,78 @@ import org.apache.pulsar.functions.worker.WorkerService;
  */
 public interface Workers<W extends WorkerService> {
 
-    List<WorkerInfo> getCluster(HttpAuthDataWrapper authDataWrapper);
+    List<WorkerInfo> getCluster(Authentication authentication);
 
     @Deprecated
     default List<WorkerInfo> getCluster(String clientRole) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole).build();
-        return getCluster(authDataWrapper);
+        Authentication authentication = Authentication.builder().clientRole(clientRole).build();
+        return getCluster(authentication);
     }
 
-    WorkerInfo getClusterLeader(HttpAuthDataWrapper authDataWrapper);
+    WorkerInfo getClusterLeader(Authentication authentication);
 
     @Deprecated
     default WorkerInfo getClusterLeader(String clientRole) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole).build();
-        return getClusterLeader(authDataWrapper);
+        Authentication authentication = Authentication.builder().clientRole(clientRole).build();
+        return getClusterLeader(authentication);
     }
 
-    Map<String, Collection<String>> getAssignments(HttpAuthDataWrapper authDataWrapper);
+    Map<String, Collection<String>> getAssignments(Authentication authentication);
 
     @Deprecated
     default Map<String, Collection<String>> getAssignments(String clientRole) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole).build();
-        return getAssignments(authDataWrapper);
+        Authentication authentication = Authentication.builder().clientRole(clientRole).build();
+        return getAssignments(authentication);
     }
 
-    List<Metrics> getWorkerMetrics(HttpAuthDataWrapper authDataWrapper);
+    List<Metrics> getWorkerMetrics(Authentication authentication);
 
     @Deprecated
     default List<Metrics> getWorkerMetrics(String clientRole) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole).build();
-        return getWorkerMetrics(authDataWrapper);
+        Authentication authentication = Authentication.builder().clientRole(clientRole).build();
+        return getWorkerMetrics(authentication);
     }
 
-    List<WorkerFunctionInstanceStats> getFunctionsMetrics(HttpAuthDataWrapper authDataWrapper) throws IOException;
+    List<WorkerFunctionInstanceStats> getFunctionsMetrics(Authentication authentication) throws IOException;
 
     @Deprecated
     default List<WorkerFunctionInstanceStats> getFunctionsMetrics(String clientRole) throws IOException {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole).build();
-        return getFunctionsMetrics(authDataWrapper);
+        Authentication authentication = Authentication.builder().clientRole(clientRole).build();
+        return getFunctionsMetrics(authentication);
     }
 
-    List<ConnectorDefinition> getListOfConnectors(HttpAuthDataWrapper authDataWrapper);
+    List<ConnectorDefinition> getListOfConnectors(Authentication authentication);
 
     @Deprecated
     default List<ConnectorDefinition> getListOfConnectors(String clientRole) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole).build();
-        return getListOfConnectors(authDataWrapper);
+        Authentication authentication = Authentication.builder().clientRole(clientRole).build();
+        return getListOfConnectors(authentication);
     }
 
-    void rebalance(URI uri, HttpAuthDataWrapper authDataWrapper);
+    void rebalance(URI uri, Authentication authentication);
 
     @Deprecated
     default void rebalance(URI uri, String clientRole) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole).build();
-        rebalance(uri, authDataWrapper);
+        Authentication authentication = Authentication.builder().clientRole(clientRole).build();
+        rebalance(uri, authentication);
     }
 
-    void drain(URI uri, String workerId, HttpAuthDataWrapper authDataWrapper, boolean leaderUri);
+    void drain(URI uri, String workerId, Authentication authentication, boolean leaderUri);
 
     @Deprecated
     default void drain(URI uri, String workerId, String clientRole, boolean leaderUri) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole).build();
-        drain(uri, workerId, authDataWrapper, leaderUri);
+        Authentication authentication = Authentication.builder().clientRole(clientRole).build();
+        drain(uri, workerId, authentication, leaderUri);
     }
 
-    LongRunningProcessStatus getDrainStatus(URI uri, String workerId, HttpAuthDataWrapper authDataWrapper,
+    LongRunningProcessStatus getDrainStatus(URI uri, String workerId, Authentication authentication,
                                             boolean leaderUri);
 
     @Deprecated
     default LongRunningProcessStatus getDrainStatus(URI uri, String workerId, String clientRole,
                                             boolean leaderUri) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole).build();
-        return getDrainStatus(uri, workerId, authDataWrapper, leaderUri);
+        Authentication authentication = Authentication.builder().clientRole(clientRole).build();
+        return getDrainStatus(uri, workerId, authentication, leaderUri);
     }
 
     boolean isLeaderReady();

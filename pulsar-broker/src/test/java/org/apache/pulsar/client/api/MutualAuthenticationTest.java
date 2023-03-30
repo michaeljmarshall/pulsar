@@ -18,6 +18,7 @@
  */
 package org.apache.pulsar.client.api;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.net.SocketAddress;
@@ -38,8 +39,6 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Test Mutual Authentication.

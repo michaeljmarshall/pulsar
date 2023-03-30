@@ -22,9 +22,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
+import org.apache.pulsar.broker.authentication.Authentication;
 import org.apache.pulsar.broker.authentication.AuthenticationDataHttps;
 import org.apache.pulsar.broker.authentication.AuthenticationDataSource;
-import org.apache.pulsar.broker.authentication.HttpAuthDataWrapper;
 import org.apache.pulsar.common.functions.FunctionConfig;
 import org.apache.pulsar.common.functions.FunctionDefinition;
 import org.apache.pulsar.common.functions.UpdateOptionsImpl;
@@ -46,7 +46,7 @@ public interface Functions<W extends WorkerService> extends Component<W> {
                           FormDataContentDisposition fileDetail,
                           String functionPkgUrl,
                           FunctionConfig functionConfig,
-                          HttpAuthDataWrapper authDataWrapper);
+                          Authentication authentication);
 
     /**
      * Register a new function.
@@ -70,7 +70,7 @@ public interface Functions<W extends WorkerService> extends Component<W> {
                           FunctionConfig functionConfig,
                           String clientRole,
                           AuthenticationDataSource clientAuthenticationDataHttps) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder()
+        Authentication authentication = Authentication.builder()
                 .clientRole(clientRole)
                 .clientAuthenticationDataSource(clientAuthenticationDataHttps)
                 .build();
@@ -82,7 +82,7 @@ public interface Functions<W extends WorkerService> extends Component<W> {
                 fileDetail,
                 functionPkgUrl,
                 functionConfig,
-                authDataWrapper);
+                authentication);
     }
 
     /**
@@ -119,7 +119,7 @@ public interface Functions<W extends WorkerService> extends Component<W> {
                         FormDataContentDisposition fileDetail,
                         String functionPkgUrl,
                         FunctionConfig functionConfig,
-                        HttpAuthDataWrapper authDataWrapper,
+                        Authentication authentication,
                         UpdateOptionsImpl updateOptions);
 
     /**
@@ -146,7 +146,7 @@ public interface Functions<W extends WorkerService> extends Component<W> {
                         String clientRole,
                         AuthenticationDataSource clientAuthenticationDataHttps,
                         UpdateOptionsImpl updateOptions) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder()
+        Authentication authentication = Authentication.builder()
                 .clientRole(clientRole)
                 .clientAuthenticationDataSource(clientAuthenticationDataHttps)
                 .build();
@@ -158,7 +158,7 @@ public interface Functions<W extends WorkerService> extends Component<W> {
                 fileDetail,
                 functionPkgUrl,
                 functionConfig,
-                authDataWrapper,
+                authentication,
                 updateOptions);
     }
 
@@ -197,7 +197,7 @@ public interface Functions<W extends WorkerService> extends Component<W> {
                                       InputStream uploadedInputStream,
                                       boolean delete,
                                       URI uri,
-                                      HttpAuthDataWrapper authDataWrapper);
+                                      Authentication authentication);
 
     @Deprecated
     default void updateFunctionOnWorkerLeader(String tenant,
@@ -208,16 +208,16 @@ public interface Functions<W extends WorkerService> extends Component<W> {
                                               URI uri,
                                               String clientRole,
                                               AuthenticationDataSource clientAuthenticationDataHttps) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole)
+        Authentication authentication = Authentication.builder().clientRole(clientRole)
                 .clientAuthenticationDataSource(clientAuthenticationDataHttps).build();
         updateFunctionOnWorkerLeader(tenant, namespace, functionName, uploadedInputStream, delete, uri,
-                authDataWrapper);
+                authentication);
     }
     FunctionStatus getFunctionStatus(String tenant,
                                      String namespace,
                                      String componentName,
                                      URI uri,
-                                     HttpAuthDataWrapper authDataWrapper);
+                                     Authentication authentication);
 
     @Deprecated
     default FunctionStatus getFunctionStatus(String tenant,
@@ -226,9 +226,9 @@ public interface Functions<W extends WorkerService> extends Component<W> {
                                              URI uri,
                                              String clientRole,
                                              AuthenticationDataSource clientAuthenticationDataHttps) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole)
+        Authentication authentication = Authentication.builder().clientRole(clientRole)
                 .clientAuthenticationDataSource(clientAuthenticationDataHttps).build();
-        return getFunctionStatus(tenant, namespace, componentName, uri, authDataWrapper);
+        return getFunctionStatus(tenant, namespace, componentName, uri, authentication);
     }
 
     FunctionInstanceStatusData getFunctionInstanceStatus(String tenant,
@@ -236,7 +236,7 @@ public interface Functions<W extends WorkerService> extends Component<W> {
                                                          String componentName,
                                                          String instanceId,
                                                          URI uri,
-                                                         HttpAuthDataWrapper authDataWrapper);
+                                                         Authentication authentication);
 
     @Deprecated
     default FunctionInstanceStatusData getFunctionInstanceStatus(String tenant,
@@ -246,29 +246,29 @@ public interface Functions<W extends WorkerService> extends Component<W> {
                                                          URI uri,
                                                          String clientRole,
                                                          AuthenticationDataSource clientAuthenticationDataHttps) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole)
+        Authentication authentication = Authentication.builder().clientRole(clientRole)
                 .clientAuthenticationDataSource(clientAuthenticationDataHttps).build();
-        return getFunctionInstanceStatus(tenant, namespace, componentName, instanceId, uri, authDataWrapper);
+        return getFunctionInstanceStatus(tenant, namespace, componentName, instanceId, uri, authentication);
     }
 
-    void reloadBuiltinFunctions(HttpAuthDataWrapper authDataWrapper) throws IOException;
+    void reloadBuiltinFunctions(Authentication authentication) throws IOException;
 
     @Deprecated
     default void reloadBuiltinFunctions(String clientRole,
                                 AuthenticationDataSource clientAuthenticationDataHttps) throws IOException {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole)
+        Authentication authentication = Authentication.builder().clientRole(clientRole)
                 .clientAuthenticationDataSource(clientAuthenticationDataHttps).build();
-        reloadBuiltinFunctions(authDataWrapper);
+        reloadBuiltinFunctions(authentication);
     }
 
-    List<FunctionDefinition> getBuiltinFunctions(HttpAuthDataWrapper authDataWrapper);
+    List<FunctionDefinition> getBuiltinFunctions(Authentication authentication);
 
 
     @Deprecated
     default List<FunctionDefinition> getBuiltinFunctions(String clientRole,
                                                          AuthenticationDataSource clientAuthenticationDataHttps) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole)
+        Authentication authentication = Authentication.builder().clientRole(clientRole)
                 .clientAuthenticationDataSource(clientAuthenticationDataHttps).build();
-        return getBuiltinFunctions(authDataWrapper);
+        return getBuiltinFunctions(authentication);
     }
 }

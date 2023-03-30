@@ -20,12 +20,13 @@
 
 # DEPENDENCIES:  unittest2,mock
 
-from mock import Mock
 import sys
+from mock import Mock
+
 sys.modules['prometheus_client'] = Mock()
 
 from contextimpl import ContextImpl
-from python_instance import PythonInstance, InstanceConfig
+from python_instance import InstanceConfig
 from pulsar import Message
 
 import Function_pb2

@@ -18,6 +18,10 @@
  */
 package org.apache.pulsar.io.jdbc;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pulsar.io.jdbc.JdbcUtils.TableDefinition;
 import org.apache.pulsar.io.jdbc.JdbcUtils.TableId;
@@ -27,11 +31,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.List;
 
 /**
  * Jdbc Utils test

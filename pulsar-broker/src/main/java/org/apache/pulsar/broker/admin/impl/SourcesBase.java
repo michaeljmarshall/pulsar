@@ -142,7 +142,7 @@ public class SourcesBase extends AdminResource {
             )
             final @FormDataParam("sourceConfig") SourceConfig sourceConfig) {
         sources().registerSource(tenant, namespace, sourceName, uploadedInputStream, fileDetail,
-            sourcePkgUrl, sourceConfig, httpAuthDataWrapper());
+            sourcePkgUrl, sourceConfig, authentication());
     }
 
     @PUT
@@ -227,7 +227,7 @@ public class SourcesBase extends AdminResource {
             @ApiParam(value = "Update options for Pulsar Source")
             final @FormDataParam("updateOptions") UpdateOptionsImpl updateOptions) {
         sources().updateSource(tenant, namespace, sourceName, uploadedInputStream, fileDetail,
-            sourcePkgUrl, sourceConfig, httpAuthDataWrapper(), updateOptions);
+            sourcePkgUrl, sourceConfig, authentication(), updateOptions);
     }
 
 
@@ -250,7 +250,7 @@ public class SourcesBase extends AdminResource {
             final @PathParam("namespace") String namespace,
             @ApiParam(value = "The name of a Pulsar Source")
             final @PathParam("sourceName") String sourceName) {
-        sources().deregisterFunction(tenant, namespace, sourceName, httpAuthDataWrapper());
+        sources().deregisterFunction(tenant, namespace, sourceName, authentication());
     }
 
     @GET
@@ -271,7 +271,7 @@ public class SourcesBase extends AdminResource {
             final @PathParam("namespace") String namespace,
             @ApiParam(value = "The name of a Pulsar Source")
             final @PathParam("sourceName") String sourceName) throws IOException {
-        return sources().getSourceInfo(tenant, namespace, sourceName, httpAuthDataWrapper());
+        return sources().getSourceInfo(tenant, namespace, sourceName, authentication());
     }
 
     @GET
@@ -294,7 +294,7 @@ public class SourcesBase extends AdminResource {
                     + " (if instance-id is not provided, the stats of all instances is returned).") final @PathParam(
                     "instanceId") String instanceId) throws IOException {
         return sources().getSourceInstanceStatus(
-            tenant, namespace, sourceName, instanceId, uri.getRequestUri(), httpAuthDataWrapper());
+            tenant, namespace, sourceName, instanceId, uri.getRequestUri(), authentication());
     }
 
     @GET
@@ -316,7 +316,7 @@ public class SourcesBase extends AdminResource {
             final @PathParam("namespace") String namespace,
             @ApiParam(value = "The name of a Pulsar Source")
             final @PathParam("sourceName") String sourceName) throws IOException {
-        return sources().getSourceStatus(tenant, namespace, sourceName, uri.getRequestUri(), httpAuthDataWrapper());
+        return sources().getSourceStatus(tenant, namespace, sourceName, uri.getRequestUri(), authentication());
     }
 
     @GET
@@ -338,7 +338,7 @@ public class SourcesBase extends AdminResource {
             final @PathParam("tenant") String tenant,
             @ApiParam(value = "The namespace of a Pulsar Source")
             final @PathParam("namespace") String namespace) {
-        return sources().listFunctions(tenant, namespace, httpAuthDataWrapper());
+        return sources().listFunctions(tenant, namespace, authentication());
     }
 
     @POST
@@ -361,7 +361,7 @@ public class SourcesBase extends AdminResource {
                     + " (if instance-id is not provided, the stats of all instances is returned).") final @PathParam(
                     "instanceId") String instanceId) {
         sources().restartFunctionInstance(tenant, namespace, sourceName, instanceId,
-                uri.getRequestUri(), httpAuthDataWrapper());
+                uri.getRequestUri(), authentication());
     }
 
     @POST
@@ -382,7 +382,7 @@ public class SourcesBase extends AdminResource {
             final @PathParam("namespace") String namespace,
             @ApiParam(value = "The name of a Pulsar Source")
             final @PathParam("sourceName") String sourceName) {
-        sources().restartFunctionInstances(tenant, namespace, sourceName, httpAuthDataWrapper());
+        sources().restartFunctionInstances(tenant, namespace, sourceName, authentication());
     }
 
     @POST
@@ -403,7 +403,7 @@ public class SourcesBase extends AdminResource {
             @ApiParam(value = "The instanceId of a Pulsar Source (if instance-id is not provided,"
                     + " the stats of all instances is returned).") final @PathParam("instanceId") String instanceId) {
         sources().stopFunctionInstance(tenant, namespace, sourceName, instanceId,
-                uri.getRequestUri(), httpAuthDataWrapper());
+                uri.getRequestUri(), authentication());
     }
 
     @POST
@@ -424,7 +424,7 @@ public class SourcesBase extends AdminResource {
             final @PathParam("namespace") String namespace,
             @ApiParam(value = "The name of a Pulsar Source")
             final @PathParam("sourceName") String sourceName) {
-        sources().stopFunctionInstances(tenant, namespace, sourceName, httpAuthDataWrapper());
+        sources().stopFunctionInstances(tenant, namespace, sourceName, authentication());
     }
 
     @POST
@@ -445,7 +445,7 @@ public class SourcesBase extends AdminResource {
             @ApiParam(value = "The instanceId of a Pulsar Source (if instance-id is not provided,"
                     + " the stats of all instances is returned).") final @PathParam("instanceId") String instanceId) {
         sources().startFunctionInstance(tenant, namespace, sourceName, instanceId,
-                uri.getRequestUri(), httpAuthDataWrapper());
+                uri.getRequestUri(), authentication());
     }
 
     @POST
@@ -466,7 +466,7 @@ public class SourcesBase extends AdminResource {
             final @PathParam("namespace") String namespace,
             @ApiParam(value = "The name of a Pulsar Source")
             final @PathParam("sourceName") String sourceName) {
-        sources().startFunctionInstances(tenant, namespace, sourceName, httpAuthDataWrapper());
+        sources().startFunctionInstances(tenant, namespace, sourceName, authentication());
     }
 
     @GET
@@ -519,6 +519,6 @@ public class SourcesBase extends AdminResource {
     })
     @Path("/reloadBuiltInSources")
     public void reloadSources() {
-        sources().reloadConnectors(httpAuthDataWrapper());
+        sources().reloadConnectors(authentication());
     }
 }

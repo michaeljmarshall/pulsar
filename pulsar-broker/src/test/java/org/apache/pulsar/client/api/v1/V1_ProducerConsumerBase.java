@@ -19,10 +19,8 @@
 package org.apache.pulsar.client.api.v1;
 
 import com.google.common.collect.Sets;
-
 import java.lang.reflect.Method;
 import java.util.Set;
-
 import org.apache.pulsar.broker.auth.MockedPulsarServiceBaseTest;
 import org.apache.pulsar.common.policies.data.ClusterData;
 import org.apache.pulsar.common.policies.data.TenantInfoImpl;

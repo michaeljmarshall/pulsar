@@ -18,8 +18,12 @@
  */
 package org.apache.pulsar.functions.runtime;
 
+import static org.testng.AssertJUnit.assertTrue;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pulsar.functions.instance.AuthenticationConfig;
 import org.apache.pulsar.functions.instance.InstanceConfig;
@@ -28,13 +32,6 @@ import org.jose4j.json.internal.json_simple.JSONObject;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-
-import static org.testng.AssertJUnit.assertTrue;
 
 @Slf4j
 public class RuntimeUtilsTest {

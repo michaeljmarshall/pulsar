@@ -18,11 +18,6 @@
  */
 package org.apache.pulsar.functions.instance;
 
-import lombok.Cleanup;
-import lombok.extern.slf4j.Slf4j;
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
@@ -30,6 +25,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import lombok.Cleanup;
+import lombok.extern.slf4j.Slf4j;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 @Slf4j
 /**

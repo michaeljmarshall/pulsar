@@ -18,11 +18,10 @@
  */
 package org.apache.pulsar.client.api;
 
-import org.apache.pulsar.client.impl.auth.MockEncodedAuthenticationParameterSupport;
 import org.apache.pulsar.client.impl.auth.MockAuthentication;
-
-import org.testng.annotations.Test;
+import org.apache.pulsar.client.impl.auth.MockEncodedAuthenticationParameterSupport;
 import org.testng.Assert;
+import org.testng.annotations.Test;
 
 public class AuthenticationTest {
 

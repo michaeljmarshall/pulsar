@@ -21,9 +21,9 @@ package org.apache.pulsar.functions.worker.service.api;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
+import org.apache.pulsar.broker.authentication.Authentication;
 import org.apache.pulsar.broker.authentication.AuthenticationDataHttps;
 import org.apache.pulsar.broker.authentication.AuthenticationDataSource;
-import org.apache.pulsar.broker.authentication.HttpAuthDataWrapper;
 import org.apache.pulsar.common.functions.UpdateOptionsImpl;
 import org.apache.pulsar.common.io.ConfigFieldDefinition;
 import org.apache.pulsar.common.io.ConnectorDefinition;
@@ -45,7 +45,7 @@ public interface Sinks<W extends WorkerService> extends Component<W> {
                       FormDataContentDisposition fileDetail,
                       String sinkPkgUrl,
                       SinkConfig sinkConfig,
-                      HttpAuthDataWrapper authDataWrapper);
+                      Authentication authentication);
 
     /**
      * Update a function.
@@ -69,12 +69,12 @@ public interface Sinks<W extends WorkerService> extends Component<W> {
                       SinkConfig sinkConfig,
                       String clientRole,
                       AuthenticationDataSource clientAuthenticationDataHttps) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder()
+        Authentication authentication = Authentication.builder()
                 .clientRole(clientRole)
                 .clientAuthenticationDataSource(clientAuthenticationDataHttps)
                 .build();
         registerSink(tenant, namespace, sinkName, uploadedInputStream, fileDetail, sinkPkgUrl, sinkConfig,
-                authDataWrapper);
+                authentication);
     }
 
     /**
@@ -114,7 +114,7 @@ public interface Sinks<W extends WorkerService> extends Component<W> {
      * @param sinkPkgUrl URL path of the Pulsar Sink package
      * @param sinkConfig Configuration of Pulsar Sink
      * @param updateOptions Options while updating the sink
-     * @param authDataWrapper auth data for http request
+     * @param authentication auth data for http request
      */
     void updateSink(String tenant,
                     String namespace,
@@ -124,7 +124,7 @@ public interface Sinks<W extends WorkerService> extends Component<W> {
                     String sinkPkgUrl,
                     SinkConfig sinkConfig,
                     UpdateOptionsImpl updateOptions,
-                    HttpAuthDataWrapper authDataWrapper);
+                    Authentication authentication);
 
     /**
      * Update a function.
@@ -150,12 +150,12 @@ public interface Sinks<W extends WorkerService> extends Component<W> {
                     String clientRole,
                     AuthenticationDataSource clientAuthenticationDataHttps,
                     UpdateOptionsImpl updateOptions) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder()
+        Authentication authentication = Authentication.builder()
                 .clientRole(clientRole)
                 .clientAuthenticationDataSource(clientAuthenticationDataHttps)
                 .build();
         updateSink(tenant, namespace, sinkName, uploadedInputStream, fileDetail, sinkPkgUrl, sinkConfig, updateOptions,
-                authDataWrapper);
+                authentication);
     }
 
     /**
@@ -192,7 +192,7 @@ public interface Sinks<W extends WorkerService> extends Component<W> {
                                                  String sinkName,
                                                  String instanceId,
                                                  URI uri,
-                                                 HttpAuthDataWrapper authDataWrapper);
+                                                 Authentication authentication);
 
     @Deprecated
     default SinkInstanceStatusData getSinkInstanceStatus(String tenant,
@@ -202,18 +202,18 @@ public interface Sinks<W extends WorkerService> extends Component<W> {
                                                          URI uri,
                                                          String clientRole,
                                                          AuthenticationDataSource clientAuthenticationDataHttps) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder()
+        Authentication authentication = Authentication.builder()
                 .clientRole(clientRole)
                 .clientAuthenticationDataSource(clientAuthenticationDataHttps)
                 .build();
-        return getSinkInstanceStatus(tenant, namespace, sinkName, instanceId, uri, authDataWrapper);
+        return getSinkInstanceStatus(tenant, namespace, sinkName, instanceId, uri, authentication);
     }
 
     SinkStatus getSinkStatus(String tenant,
                              String namespace,
                              String componentName,
                              URI uri,
-                             HttpAuthDataWrapper authDataWrapper);
+                             Authentication authentication);
 
     @Deprecated
     default SinkStatus getSinkStatus(String tenant,
@@ -222,23 +222,23 @@ public interface Sinks<W extends WorkerService> extends Component<W> {
                              URI uri,
                              String clientRole,
                              AuthenticationDataSource clientAuthenticationDataHttps) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder()
+        Authentication authentication = Authentication.builder()
                 .clientRole(clientRole)
                 .clientAuthenticationDataSource(clientAuthenticationDataHttps)
                 .build();
-        return getSinkStatus(tenant, namespace, componentName, uri, authDataWrapper);
+        return getSinkStatus(tenant, namespace, componentName, uri, authentication);
     }
 
     SinkConfig getSinkInfo(String tenant,
                            String namespace,
                            String componentName,
-                           HttpAuthDataWrapper authDataWrapper);
+                           Authentication authentication);
 
     @Deprecated
     default SinkConfig getSinkInfo(String tenant,
                                    String namespace,
                                    String componentName) {
-        return getSinkInfo(tenant, namespace, componentName, HttpAuthDataWrapper.builder().build());
+        return getSinkInfo(tenant, namespace, componentName, Authentication.builder().build());
     }
 
     List<ConnectorDefinition> getSinkList();

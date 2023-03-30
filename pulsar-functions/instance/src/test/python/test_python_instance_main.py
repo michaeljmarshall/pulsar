@@ -18,12 +18,12 @@
 #
 
 
+import log
+import os
 # DEPENDENCIES:  unittest2
 import python_instance_main
-
-import os
-import log
 import unittest
+
 
 class TestContextImpl(unittest.TestCase):
 

@@ -34,7 +34,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.pulsar.broker.authentication.HttpAuthDataWrapper;
+import org.apache.pulsar.broker.authentication.Authentication;
 import org.apache.pulsar.client.admin.LongRunningProcessStatus;
 import org.apache.pulsar.common.functions.WorkerInfo;
 import org.apache.pulsar.common.io.ConnectorDefinition;
@@ -79,24 +79,24 @@ public class WorkerImpl implements Workers<PulsarWorkerService> {
     }
 
     @Override
-    public List<WorkerInfo> getCluster(HttpAuthDataWrapper authDataWrapper) {
+    public List<WorkerInfo> getCluster(Authentication authentication) {
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
         }
 
-        throwIfNotSuperUser(authDataWrapper, "get cluster");
+        throwIfNotSuperUser(authentication, "get cluster");
 
         List<WorkerInfo> workers = worker().getMembershipManager().getCurrentMembership();
         return workers;
     }
 
     @Override
-    public WorkerInfo getClusterLeader(HttpAuthDataWrapper authDataWrapper) {
+    public WorkerInfo getClusterLeader(Authentication authentication) {
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
         }
 
-        throwIfNotSuperUser(authDataWrapper, "get cluster leader");
+        throwIfNotSuperUser(authentication, "get cluster leader");
 
         MembershipManager membershipManager = worker().getMembershipManager();
         WorkerInfo leader = membershipManager.getLeader();
@@ -109,12 +109,12 @@ public class WorkerImpl implements Workers<PulsarWorkerService> {
     }
 
     @Override
-    public Map<String, Collection<String>> getAssignments(HttpAuthDataWrapper authDataWrapper) {
+    public Map<String, Collection<String>> getAssignments(Authentication authentication) {
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
         }
 
-        throwIfNotSuperUser(authDataWrapper, "get cluster assignments");
+        throwIfNotSuperUser(authentication, "get cluster assignments");
 
         FunctionRuntimeManager functionRuntimeManager = worker().getFunctionRuntimeManager();
         Map<String, Map<String, Function.Assignment>> assignments = functionRuntimeManager.getCurrentAssignments();
@@ -125,45 +125,45 @@ public class WorkerImpl implements Workers<PulsarWorkerService> {
         return ret;
     }
 
-    private void throwIfNotSuperUser(HttpAuthDataWrapper authDataWrapper, String action) {
-        if (authDataWrapper.getClientRole() != null) {
+    private void throwIfNotSuperUser(Authentication authentication, String action) {
+        if (authentication.getClientRole() != null) {
             try {
-                if (!worker().getAuthorizationService().isSuperUser(authDataWrapper)
+                if (!worker().getAuthorizationService().isSuperUser(authentication)
                         .get(worker().getWorkerConfig().getMetadataStoreOperationTimeoutSeconds(), SECONDS)) {
                     log.error("Client with role [{}] and originalPrincipal [{}] is not authorized to {}",
-                            authDataWrapper.getClientRole(), authDataWrapper.getOriginalPrincipal(), action);
+                            authentication.getClientRole(), authentication.getOriginalPrincipal(), action);
                     throw new RestException(Status.UNAUTHORIZED, "Client is not authorized to perform operation");
                 }
             } catch (InterruptedException e) {
                 log.warn("Time-out {} sec while checking the role {} originalPrincipal {} is a super user role ",
                         worker().getWorkerConfig().getMetadataStoreOperationTimeoutSeconds(),
-                        authDataWrapper.getClientRole(), authDataWrapper.getOriginalPrincipal());
+                        authentication.getClientRole(), authentication.getOriginalPrincipal());
                 throw new RestException(Status.INTERNAL_SERVER_ERROR, e.getMessage());
             } catch (Exception e) {
                 log.warn("Failed verifying role {} originalPrincipal {} is a super user role",
-                        authDataWrapper.getClientRole(), authDataWrapper.getOriginalPrincipal(), e);
+                        authentication.getClientRole(), authentication.getOriginalPrincipal(), e);
                 throw new RestException(Status.INTERNAL_SERVER_ERROR, e.getMessage());
             }
         }
     }
 
     @Override
-    public List<org.apache.pulsar.common.stats.Metrics> getWorkerMetrics(final HttpAuthDataWrapper authDataWrapper) {
+    public List<org.apache.pulsar.common.stats.Metrics> getWorkerMetrics(final Authentication authentication) {
         if (!isWorkerServiceAvailable() || worker().getMetricsGenerator() == null) {
             throwUnavailableException();
         }
-        throwIfNotSuperUser(authDataWrapper, "get worker stats");
+        throwIfNotSuperUser(authentication, "get worker stats");
         return worker().getMetricsGenerator().generate();
     }
 
     @Override
-    public List<WorkerFunctionInstanceStats> getFunctionsMetrics(HttpAuthDataWrapper authDataWrapper)
+    public List<WorkerFunctionInstanceStats> getFunctionsMetrics(Authentication authentication)
             throws IOException {
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
         }
 
-        throwIfNotSuperUser(authDataWrapper, "get function stats");
+        throwIfNotSuperUser(authentication, "get function stats");
 
         Map<String, FunctionRuntimeInfo> functionRuntimes = worker().getFunctionRuntimeManager()
                 .getFunctionRuntimeInfos();
@@ -202,20 +202,20 @@ public class WorkerImpl implements Workers<PulsarWorkerService> {
     }
 
     @Override
-    public List<ConnectorDefinition> getListOfConnectors(HttpAuthDataWrapper authDataWrapper) {
+    public List<ConnectorDefinition> getListOfConnectors(Authentication authentication) {
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
         }
-        throwIfNotSuperUser(authDataWrapper, "get list of connectors");
+        throwIfNotSuperUser(authentication, "get list of connectors");
         return this.worker().getConnectorsManager().getConnectorDefinitions();
     }
 
     @Override
-    public void rebalance(final URI uri, final HttpAuthDataWrapper authDataWrapper) {
+    public void rebalance(final URI uri, final Authentication authentication) {
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
         }
-        throwIfNotSuperUser(authDataWrapper, "rebalance cluster");
+        throwIfNotSuperUser(authentication, "rebalance cluster");
 
         if (worker().getLeaderService().isLeader()) {
             try {
@@ -237,7 +237,7 @@ public class WorkerImpl implements Workers<PulsarWorkerService> {
     }
 
     @Override
-    public void drain(final URI uri, final String inWorkerId, final HttpAuthDataWrapper authDataWrapper,
+    public void drain(final URI uri, final String inWorkerId, final Authentication authentication,
                       boolean calledOnLeaderUri) {
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
@@ -249,11 +249,11 @@ public class WorkerImpl implements Workers<PulsarWorkerService> {
         if (log.isDebugEnabled()) {
             log.debug("drain called with URI={}, inWorkerId={}, workerId={}, clientRole={}, originalPrincipal={}, "
                             + "calledOnLeaderUri={}, on actual worker-id={}",
-                    uri, inWorkerId, workerId, authDataWrapper.getClientRole(), authDataWrapper.getOriginalPrincipal(),
+                    uri, inWorkerId, workerId, authentication.getClientRole(), authentication.getOriginalPrincipal(),
                     calledOnLeaderUri, actualWorkerId);
         }
 
-        throwIfNotSuperUser(authDataWrapper, "drain worker");
+        throwIfNotSuperUser(authentication, "drain worker");
 
         // Depending on which operations we decide to allow, we may add checks here to error/exception if
         //      calledOnLeaderUri is true on a non-leader
@@ -283,7 +283,7 @@ public class WorkerImpl implements Workers<PulsarWorkerService> {
 
     @Override
     public LongRunningProcessStatus getDrainStatus(final URI uri, final String inWorkerId,
-                                                   final HttpAuthDataWrapper authDataWrapper,
+                                                   final Authentication authentication,
                                                    boolean calledOnLeaderUri) {
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
@@ -295,11 +295,11 @@ public class WorkerImpl implements Workers<PulsarWorkerService> {
         if (log.isDebugEnabled()) {
             log.debug("getDrainStatus called with uri={}, inWorkerId={}, workerId={}, clientRole={}, "
                             + "originalPrincipal={}, calledOnLeaderUri={}, on actual workerId={}",
-                    uri, inWorkerId, workerId, authDataWrapper.getClientRole(), authDataWrapper.getOriginalPrincipal(),
+                    uri, inWorkerId, workerId, authentication.getClientRole(), authentication.getOriginalPrincipal(),
                     calledOnLeaderUri, actualWorkerId);
         }
 
-        throwIfNotSuperUser(authDataWrapper, "get drain status of worker");
+        throwIfNotSuperUser(authentication, "get drain status of worker");
 
         // Depending on which operations we decide to allow, we may add checks here to error/exception if
         //      calledOnLeaderUri is true on a non-leader

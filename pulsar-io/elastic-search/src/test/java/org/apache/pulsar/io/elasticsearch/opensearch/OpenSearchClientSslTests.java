@@ -18,6 +18,12 @@
  */
 package org.apache.pulsar.io.elasticsearch.opensearch;
 
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
+import java.io.IOException;
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.pulsar.io.elasticsearch.ElasticSearchClient;
 import org.apache.pulsar.io.elasticsearch.ElasticSearchConfig;
 import org.apache.pulsar.io.elasticsearch.ElasticSearchSslConfig;
@@ -26,14 +32,6 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
 import org.testcontainers.utility.MountableFile;
 import org.testng.annotations.Test;
-
-import java.io.IOException;
-import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
 
 /*https://opensearch.org/docs/latest/opensearch/install/docker-security/*/
 public class OpenSearchClientSslTests extends ElasticSearchTestBase {

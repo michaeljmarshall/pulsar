@@ -18,6 +18,8 @@
  */
 package org.apache.pulsar.sql.presto.decoder;
 
+import static org.mockito.Mockito.spy;
+import static org.testng.Assert.assertNotNull;
 import io.airlift.slice.Slice;
 import io.trino.decoder.DecoderColumnHandle;
 import io.trino.decoder.FieldValueProvider;
@@ -27,6 +29,9 @@ import io.trino.spi.connector.ConnectorContext;
 import io.trino.spi.type.Type;
 import io.trino.testing.TestingConnectorContext;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.apache.pulsar.common.naming.NamespaceName;
 import org.apache.pulsar.common.naming.TopicName;
 import org.apache.pulsar.common.schema.SchemaInfo;
@@ -38,13 +43,6 @@ import org.apache.pulsar.sql.presto.PulsarConnectorId;
 import org.apache.pulsar.sql.presto.PulsarDispatchingRowDecoderFactory;
 import org.apache.pulsar.sql.presto.PulsarMetadata;
 import org.apache.pulsar.sql.presto.PulsarRowDecoder;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import static org.mockito.Mockito.spy;
-import static org.testng.Assert.assertNotNull;
 
 /**
  * Abstract superclass for TestXXDecoder (e.g. TestAvroDecoder 、TestJsonDecoder).

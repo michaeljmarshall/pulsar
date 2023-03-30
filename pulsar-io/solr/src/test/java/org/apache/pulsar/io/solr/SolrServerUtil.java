@@ -18,11 +18,10 @@
  */
 package org.apache.pulsar.io.solr;
 
+import java.io.File;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.solr.client.solrj.embedded.JettySolrRunner;
-
-import java.io.File;
 
 @Slf4j
 public class SolrServerUtil {

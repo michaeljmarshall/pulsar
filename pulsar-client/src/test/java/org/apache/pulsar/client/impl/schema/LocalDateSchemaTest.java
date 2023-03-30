@@ -20,9 +20,9 @@ package org.apache.pulsar.client.impl.schema;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import java.time.LocalDate;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import java.time.LocalDate;
 
 public class LocalDateSchemaTest {
 

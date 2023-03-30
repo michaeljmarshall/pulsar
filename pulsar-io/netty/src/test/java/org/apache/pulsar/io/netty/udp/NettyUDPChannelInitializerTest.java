@@ -20,11 +20,9 @@ package org.apache.pulsar.io.netty.udp;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
-
+import io.netty.channel.socket.nio.NioDatagramChannel;
 import org.apache.pulsar.io.netty.NettySource;
 import org.testng.annotations.Test;
-
-import io.netty.channel.socket.nio.NioDatagramChannel;
 
 /**
  * Tests for Netty Channel Initializer

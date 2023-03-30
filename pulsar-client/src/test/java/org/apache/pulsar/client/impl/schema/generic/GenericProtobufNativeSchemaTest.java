@@ -18,14 +18,13 @@
  */
 package org.apache.pulsar.client.impl.schema.generic;
 
+import static org.testng.Assert.assertEquals;
 import org.apache.pulsar.client.api.schema.GenericRecord;
 import org.apache.pulsar.client.api.schema.SchemaDefinition;
 import org.apache.pulsar.client.impl.schema.ProtobufNativeSchema;
 import org.apache.pulsar.client.schema.proto.Test.TestMessage;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import static org.testng.Assert.assertEquals;
 
 public class GenericProtobufNativeSchemaTest {
 

@@ -19,7 +19,6 @@
 package org.apache.pulsar.broker.service;
 
 import static org.apache.bookkeeper.mledger.proto.MLDataFormats.ManagedLedgerInfo.LedgerInfo;
-
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;

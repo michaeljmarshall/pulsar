@@ -20,12 +20,12 @@
 
 # DEPENDENCIES:  unittest2,mock
 
-from secretsprovider import ClearTextSecretsProvider
-from secretsprovider import EnvironmentBasedSecretsProvider
-
 import log
 import os
 import unittest
+from secretsprovider import ClearTextSecretsProvider
+from secretsprovider import EnvironmentBasedSecretsProvider
+
 
 class TestContextImpl(unittest.TestCase):
 

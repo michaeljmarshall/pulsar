@@ -19,7 +19,6 @@
 package org.apache.pulsar.client.impl.schema;
 
 import java.util.List;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.avro.reflect.AvroDefault;

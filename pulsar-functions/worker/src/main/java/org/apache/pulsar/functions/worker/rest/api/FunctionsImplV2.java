@@ -28,7 +28,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.pulsar.broker.authentication.HttpAuthDataWrapper;
+import org.apache.pulsar.broker.authentication.Authentication;
 import org.apache.pulsar.common.functions.FunctionConfig;
 import org.apache.pulsar.common.functions.FunctionState;
 import org.apache.pulsar.common.io.ConnectorDefinition;
@@ -60,11 +60,11 @@ public class FunctionsImplV2 implements FunctionsV2<PulsarWorkerService> {
 
     @Override
     public Response getFunctionInfo(final String tenant, final String namespace,
-                                    final String functionName, HttpAuthDataWrapper authDataWrapper)
+                                    final String functionName, Authentication authentication)
             throws IOException {
 
         // run just for parameter checks
-        delegate.getFunctionInfo(tenant, namespace, functionName, authDataWrapper);
+        delegate.getFunctionInfo(tenant, namespace, functionName, authentication);
 
         FunctionMetaDataManager functionMetaDataManager = delegate.worker().getFunctionMetaDataManager();
 
@@ -77,11 +77,11 @@ public class FunctionsImplV2 implements FunctionsV2<PulsarWorkerService> {
     @Override
     public Response getFunctionInstanceStatus(final String tenant, final String namespace, final String functionName,
                                               final String instanceId, URI uri,
-                                              HttpAuthDataWrapper authDataWrapper) throws IOException {
+                                              Authentication authentication) throws IOException {
 
         org.apache.pulsar.common.policies.data.FunctionStatus.FunctionInstanceStatus.FunctionInstanceStatusData
                 functionInstanceStatus = delegate.getFunctionInstanceStatus(tenant, namespace,
-                functionName, instanceId, uri, authDataWrapper);
+                functionName, instanceId, uri, authentication);
 
         String jsonResponse = FunctionCommon.printJson(toProto(functionInstanceStatus, instanceId));
         return Response.status(Response.Status.OK).entity(jsonResponse).build();
@@ -89,10 +89,10 @@ public class FunctionsImplV2 implements FunctionsV2<PulsarWorkerService> {
 
     @Override
     public Response getFunctionStatusV2(String tenant, String namespace, String functionName,
-                                        URI requestUri, HttpAuthDataWrapper authDataWrapper) throws
+                                        URI requestUri, Authentication authentication) throws
             IOException {
         FunctionStatus functionStatus = delegate.getFunctionStatus(tenant, namespace,
-                functionName, requestUri, authDataWrapper);
+                functionName, requestUri, authentication);
         InstanceCommunication.FunctionStatusList.Builder functionStatusList =
                 InstanceCommunication.FunctionStatusList.newBuilder();
         functionStatus.instances.forEach(functionInstanceStatus -> functionStatusList.addFunctionStatusList(
@@ -105,7 +105,7 @@ public class FunctionsImplV2 implements FunctionsV2<PulsarWorkerService> {
     @Override
     public Response registerFunction(String tenant, String namespace, String functionName, InputStream
             uploadedInputStream, FormDataContentDisposition fileDetail, String functionPkgUrl, String
-                                             functionDetailsJson, HttpAuthDataWrapper authDataWrapper) {
+                                             functionDetailsJson, Authentication authentication) {
 
         Function.FunctionDetails.Builder functionDetailsBuilder = Function.FunctionDetails.newBuilder();
         try {
@@ -116,7 +116,7 @@ public class FunctionsImplV2 implements FunctionsV2<PulsarWorkerService> {
         FunctionConfig functionConfig = FunctionConfigUtils.convertFromDetails(functionDetailsBuilder.build());
 
         delegate.registerFunction(tenant, namespace, functionName, uploadedInputStream, fileDetail,
-                functionPkgUrl, functionConfig, authDataWrapper);
+                functionPkgUrl, functionConfig, authentication);
         return Response.ok().build();
     }
 
@@ -124,7 +124,7 @@ public class FunctionsImplV2 implements FunctionsV2<PulsarWorkerService> {
     public Response updateFunction(String tenant, String namespace, String functionName,
                                    InputStream uploadedInputStream, FormDataContentDisposition fileDetail,
                                    String functionPkgUrl, String functionDetailsJson,
-                                   HttpAuthDataWrapper authDataWrapper) {
+                                   Authentication authentication) {
 
         Function.FunctionDetails.Builder functionDetailsBuilder = Function.FunctionDetails.newBuilder();
         try {
@@ -135,36 +135,36 @@ public class FunctionsImplV2 implements FunctionsV2<PulsarWorkerService> {
         FunctionConfig functionConfig = FunctionConfigUtils.convertFromDetails(functionDetailsBuilder.build());
 
         delegate.updateFunction(tenant, namespace, functionName, uploadedInputStream, fileDetail,
-                functionPkgUrl, functionConfig, authDataWrapper, null);
+                functionPkgUrl, functionConfig, authentication, null);
         return Response.ok().build();
     }
 
     @Override
     public Response deregisterFunction(String tenant, String namespace, String functionName,
-                                       HttpAuthDataWrapper authDataWrapper) {
-        delegate.deregisterFunction(tenant, namespace, functionName,  authDataWrapper);
+                                       Authentication authentication) {
+        delegate.deregisterFunction(tenant, namespace, functionName,  authentication);
         return Response.ok().build();
     }
 
     @Override
-    public Response listFunctions(String tenant, String namespace, HttpAuthDataWrapper authDataWrapper) {
-        Collection<String> functionStateList = delegate.listFunctions(tenant, namespace, authDataWrapper);
+    public Response listFunctions(String tenant, String namespace, Authentication authentication) {
+        Collection<String> functionStateList = delegate.listFunctions(tenant, namespace, authentication);
         return Response.status(Response.Status.OK).entity(new Gson().toJson(functionStateList.toArray())).build();
     }
 
     @Override
     public Response triggerFunction(String tenant, String namespace, String functionName, String triggerValue,
-                                    InputStream triggerStream, String topic, HttpAuthDataWrapper authDataWrapper) {
+                                    InputStream triggerStream, String topic, Authentication authentication) {
         String result = delegate.triggerFunction(tenant, namespace, functionName,
-                triggerValue, triggerStream, topic, authDataWrapper);
+                triggerValue, triggerStream, topic, authentication);
         return Response.status(Response.Status.OK).entity(result).build();
     }
 
     @Override
     public Response getFunctionState(String tenant, String namespace, String functionName,
-                                     String key, HttpAuthDataWrapper authDataWrapper) {
+                                     String key, Authentication authentication) {
         FunctionState functionState = delegate.getFunctionState(
-                tenant, namespace, functionName, key, authDataWrapper);
+                tenant, namespace, functionName, key, authentication);
 
         String value;
         if (functionState.getNumberValue() != null) {
@@ -179,41 +179,41 @@ public class FunctionsImplV2 implements FunctionsV2<PulsarWorkerService> {
 
     @Override
     public Response restartFunctionInstance(String tenant, String namespace, String functionName, String instanceId, URI
-            uri, HttpAuthDataWrapper authDataWrapper) {
-        delegate.restartFunctionInstance(tenant, namespace, functionName, instanceId, uri, authDataWrapper);
+            uri, Authentication authentication) {
+        delegate.restartFunctionInstance(tenant, namespace, functionName, instanceId, uri, authentication);
         return Response.ok().build();
     }
 
     @Override
     public Response restartFunctionInstances(String tenant, String namespace, String functionName,
-                                             HttpAuthDataWrapper authDataWrapper) {
-        delegate.restartFunctionInstances(tenant, namespace, functionName, authDataWrapper);
+                                             Authentication authentication) {
+        delegate.restartFunctionInstances(tenant, namespace, functionName, authentication);
         return Response.ok().build();
     }
 
     @Override
     public Response stopFunctionInstance(String tenant, String namespace, String functionName, String instanceId, URI
-            uri, HttpAuthDataWrapper authDataWrapper) {
-        delegate.stopFunctionInstance(tenant, namespace, functionName, instanceId, uri, authDataWrapper);
+            uri, Authentication authentication) {
+        delegate.stopFunctionInstance(tenant, namespace, functionName, instanceId, uri, authentication);
         return Response.ok().build();
     }
 
     @Override
     public Response stopFunctionInstances(String tenant, String namespace, String functionName,
-                                          HttpAuthDataWrapper authDataWrapper) {
-        delegate.stopFunctionInstances(tenant, namespace, functionName, authDataWrapper);
+                                          Authentication authentication) {
+        delegate.stopFunctionInstances(tenant, namespace, functionName, authentication);
         return Response.ok().build();
     }
 
     @Override
-    public Response uploadFunction(InputStream uploadedInputStream, String path, HttpAuthDataWrapper authDataWrapper) {
-        delegate.uploadFunction(uploadedInputStream, path, authDataWrapper);
+    public Response uploadFunction(InputStream uploadedInputStream, String path, Authentication authentication) {
+        delegate.uploadFunction(uploadedInputStream, path, authentication);
         return Response.ok().build();
     }
 
     @Override
-    public Response downloadFunction(String path, HttpAuthDataWrapper authDataWrapper) {
-        return Response.status(Response.Status.OK).entity(delegate.downloadFunction(path, authDataWrapper)).build();
+    public Response downloadFunction(String path, Authentication authentication) {
+        return Response.status(Response.Status.OK).entity(delegate.downloadFunction(path, authentication)).build();
     }
 
     @Override

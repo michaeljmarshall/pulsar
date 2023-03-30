@@ -23,7 +23,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 import javax.ws.rs.core.Response;
-import org.apache.pulsar.broker.authentication.HttpAuthDataWrapper;
+import org.apache.pulsar.broker.authentication.Authentication;
 import org.apache.pulsar.common.io.ConnectorDefinition;
 import org.apache.pulsar.functions.worker.WorkerService;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
@@ -36,15 +36,15 @@ public interface FunctionsV2<W extends WorkerService> {
     Response getFunctionInfo(String tenant,
                              String namespace,
                              String functionName,
-                             HttpAuthDataWrapper authDataWrapper) throws IOException;
+                             Authentication authentication) throws IOException;
 
     @Deprecated
     default Response getFunctionInfo(String tenant,
                              String namespace,
                              String functionName,
                              String clientRole) throws IOException {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole).build();
-        return getFunctionInfo(tenant, namespace, functionName, authDataWrapper);
+        Authentication authentication = Authentication.builder().clientRole(clientRole).build();
+        return getFunctionInfo(tenant, namespace, functionName, authentication);
     }
 
     Response getFunctionInstanceStatus(String tenant,
@@ -52,7 +52,7 @@ public interface FunctionsV2<W extends WorkerService> {
                                                String functionName,
                                                String instanceId,
                                                URI uri,
-                                               HttpAuthDataWrapper authDataWrapper) throws IOException;
+                                               Authentication authentication) throws IOException;
 
     @Deprecated
     default Response getFunctionInstanceStatus(String tenant,
@@ -61,15 +61,15 @@ public interface FunctionsV2<W extends WorkerService> {
                                        String instanceId,
                                        URI uri,
                                        String clientRole) throws IOException {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole).build();
-        return getFunctionInstanceStatus(tenant, namespace, functionName, instanceId, uri, authDataWrapper);
+        Authentication authentication = Authentication.builder().clientRole(clientRole).build();
+        return getFunctionInstanceStatus(tenant, namespace, functionName, instanceId, uri, authentication);
     }
 
     Response getFunctionStatusV2(String tenant,
                                  String namespace,
                                  String functionName,
                                  URI requestUri,
-                                 HttpAuthDataWrapper authDataWrapper) throws IOException;
+                                 Authentication authentication) throws IOException;
 
     @Deprecated
     default Response getFunctionStatusV2(String tenant,
@@ -77,8 +77,8 @@ public interface FunctionsV2<W extends WorkerService> {
                                  String functionName,
                                  URI requestUri,
                                  String clientRole) throws IOException {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole).build();
-        return getFunctionStatusV2(tenant, namespace, functionName, requestUri, authDataWrapper);
+        Authentication authentication = Authentication.builder().clientRole(clientRole).build();
+        return getFunctionStatusV2(tenant, namespace, functionName, requestUri, authentication);
     }
 
     Response registerFunction(String tenant,
@@ -88,7 +88,7 @@ public interface FunctionsV2<W extends WorkerService> {
                               FormDataContentDisposition fileDetail,
                               String functionPkgUrl,
                               String functionDetailsJson,
-                              HttpAuthDataWrapper authDataWrapper);
+                              Authentication authentication);
 
     @Deprecated
     default Response registerFunction(String tenant,
@@ -99,9 +99,9 @@ public interface FunctionsV2<W extends WorkerService> {
                               String functionPkgUrl,
                               String functionDetailsJson,
                               String clientRole) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole).build();
+        Authentication authentication = Authentication.builder().clientRole(clientRole).build();
         return registerFunction(tenant, namespace, functionName, uploadedInputStream, fileDetail, functionPkgUrl,
-                functionDetailsJson, authDataWrapper);
+                functionDetailsJson, authentication);
     }
 
 
@@ -112,7 +112,7 @@ public interface FunctionsV2<W extends WorkerService> {
                             FormDataContentDisposition fileDetail,
                             String functionPkgUrl,
                             String functionDetailsJson,
-                            HttpAuthDataWrapper authDataWrapper);
+                            Authentication authentication);
 
     @Deprecated
     default Response updateFunction(String tenant,
@@ -123,29 +123,29 @@ public interface FunctionsV2<W extends WorkerService> {
                             String functionPkgUrl,
                             String functionDetailsJson,
                             String clientRole) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole).build();
+        Authentication authentication = Authentication.builder().clientRole(clientRole).build();
         return updateFunction(tenant, namespace, functionName, uploadedInputStream, fileDetail, functionPkgUrl,
-                functionDetailsJson, authDataWrapper);
+                functionDetailsJson, authentication);
     }
 
     Response deregisterFunction(String tenant, String namespace, String functionName,
-                                HttpAuthDataWrapper authDataWrapper);
+                                Authentication authentication);
 
     @Deprecated
     default Response deregisterFunction(String tenant,
                                 String namespace,
                                 String functionName,
                                 String clientAppId) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientAppId).build();
-        return deregisterFunction(tenant, namespace, functionName, authDataWrapper);
+        Authentication authentication = Authentication.builder().clientRole(clientAppId).build();
+        return deregisterFunction(tenant, namespace, functionName, authentication);
     }
 
-    Response listFunctions(String tenant, String namespace, HttpAuthDataWrapper authDataWrapper);
+    Response listFunctions(String tenant, String namespace, Authentication authentication);
 
     @Deprecated
     default Response listFunctions(String tenant, String namespace, String clientRole) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole).build();
-        return listFunctions(tenant, namespace, authDataWrapper);
+        Authentication authentication = Authentication.builder().clientRole(clientRole).build();
+        return listFunctions(tenant, namespace, authentication);
     }
 
     Response triggerFunction(String tenant,
@@ -154,7 +154,7 @@ public interface FunctionsV2<W extends WorkerService> {
                              String triggerValue,
                              InputStream triggerStream,
                              String topic,
-                             HttpAuthDataWrapper authDataWrapper);
+                             Authentication authentication);
 
     @Deprecated
     default Response triggerFunction(String tenant,
@@ -164,15 +164,15 @@ public interface FunctionsV2<W extends WorkerService> {
                              InputStream triggerStream,
                              String topic,
                              String clientRole) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole).build();
-        return triggerFunction(tenant, namespace, functionName, triggerValue, triggerStream, topic, authDataWrapper);
+        Authentication authentication = Authentication.builder().clientRole(clientRole).build();
+        return triggerFunction(tenant, namespace, functionName, triggerValue, triggerStream, topic, authentication);
     }
 
     Response getFunctionState(String tenant,
                               String namespace,
                               String functionName,
                               String key,
-                              HttpAuthDataWrapper authDataWrapper);
+                              Authentication authentication);
 
     @Deprecated
     default Response getFunctionState(String tenant,
@@ -180,8 +180,8 @@ public interface FunctionsV2<W extends WorkerService> {
                               String functionName,
                               String key,
                               String clientRole) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole).build();
-        return getFunctionState(tenant, namespace, functionName, key, authDataWrapper);
+        Authentication authentication = Authentication.builder().clientRole(clientRole).build();
+        return getFunctionState(tenant, namespace, functionName, key, authentication);
     }
 
     Response restartFunctionInstance(String tenant,
@@ -189,7 +189,7 @@ public interface FunctionsV2<W extends WorkerService> {
                                      String functionName,
                                      String instanceId,
                                      URI uri,
-                                     HttpAuthDataWrapper authDataWrapper);
+                                     Authentication authentication);
 
     @Deprecated
     default Response restartFunctionInstance(String tenant,
@@ -198,22 +198,22 @@ public interface FunctionsV2<W extends WorkerService> {
                                      String instanceId,
                                      URI uri,
                                      String clientRole) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole).build();
-        return restartFunctionInstance(tenant, namespace, functionName, instanceId, uri, authDataWrapper);
+        Authentication authentication = Authentication.builder().clientRole(clientRole).build();
+        return restartFunctionInstance(tenant, namespace, functionName, instanceId, uri, authentication);
     }
 
 
     Response restartFunctionInstances(String tenant,
                                       String namespace,
                                       String functionName,
-                                      HttpAuthDataWrapper authDataWrapper);
+                                      Authentication authentication);
     @Deprecated
     default Response restartFunctionInstances(String tenant,
                                       String namespace,
                                       String functionName,
                                       String clientRole) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole).build();
-        return restartFunctionInstances(tenant, namespace, functionName, authDataWrapper);
+        Authentication authentication = Authentication.builder().clientRole(clientRole).build();
+        return restartFunctionInstances(tenant, namespace, functionName, authentication);
     }
 
     Response stopFunctionInstance(String tenant,
@@ -221,7 +221,7 @@ public interface FunctionsV2<W extends WorkerService> {
                                   String functionName,
                                   String instanceId,
                                   URI uri,
-                                  HttpAuthDataWrapper authDataWrapper);
+                                  Authentication authentication);
 
     @Deprecated
     default Response stopFunctionInstance(String tenant,
@@ -230,42 +230,42 @@ public interface FunctionsV2<W extends WorkerService> {
                                   String instanceId,
                                   URI uri,
                                   String clientRole) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole).build();
-        return stopFunctionInstance(tenant, namespace, functionName, instanceId, uri, authDataWrapper);
+        Authentication authentication = Authentication.builder().clientRole(clientRole).build();
+        return stopFunctionInstance(tenant, namespace, functionName, instanceId, uri, authentication);
     }
 
     Response stopFunctionInstances(String tenant,
                                    String namespace,
                                    String functionName,
-                                   HttpAuthDataWrapper authDataWrapper);
+                                   Authentication authentication);
 
     @Deprecated
     default Response stopFunctionInstances(String tenant,
                                    String namespace,
                                    String functionName,
                                    String clientRole) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole).build();
-        return stopFunctionInstances(tenant, namespace, functionName, authDataWrapper);
+        Authentication authentication = Authentication.builder().clientRole(clientRole).build();
+        return stopFunctionInstances(tenant, namespace, functionName, authentication);
     }
 
     Response uploadFunction(InputStream uploadedInputStream,
                             String path,
-                            HttpAuthDataWrapper authDataWrapper);
+                            Authentication authentication);
 
     @Deprecated
     default Response uploadFunction(InputStream uploadedInputStream,
                             String path,
                             String clientRole) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole).build();
-        return uploadFunction(uploadedInputStream, path, authDataWrapper);
+        Authentication authentication = Authentication.builder().clientRole(clientRole).build();
+        return uploadFunction(uploadedInputStream, path, authentication);
     }
 
-    Response downloadFunction(String path, HttpAuthDataWrapper authDataWrapper);
+    Response downloadFunction(String path, Authentication authentication);
 
     @Deprecated
     default Response downloadFunction(String path, String clientRole) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole).build();
-        return downloadFunction(path, authDataWrapper);
+        Authentication authentication = Authentication.builder().clientRole(clientRole).build();
+        return downloadFunction(path, authentication);
     }
 
     List<ConnectorDefinition> getListOfConnectors();

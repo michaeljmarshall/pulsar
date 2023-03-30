@@ -18,14 +18,13 @@
  */
 package org.apache.pulsar.broker.service.schema;
 
+import static com.google.protobuf.Descriptors.Descriptor;
 import org.apache.pulsar.client.impl.schema.ProtobufNativeSchemaUtils;
 import org.apache.pulsar.common.policies.data.SchemaCompatibilityStrategy;
 import org.apache.pulsar.common.protocol.schema.SchemaData;
 import org.apache.pulsar.common.schema.SchemaType;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import static com.google.protobuf.Descriptors.Descriptor;
 
 @Test(groups = "broker")
 public class ProtobufNativeSchemaCompatibilityCheckTest {

@@ -18,17 +18,15 @@
  */
 package org.apache.pulsar.io.rabbitmq.source;
 
-import org.apache.pulsar.io.rabbitmq.RabbitMQSourceConfig;
-import org.testng.annotations.Test;
-
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertNotNull;
+import org.apache.pulsar.io.rabbitmq.RabbitMQSourceConfig;
+import org.testng.annotations.Test;
 
 /**
  * RabbitMQSourceConfig test

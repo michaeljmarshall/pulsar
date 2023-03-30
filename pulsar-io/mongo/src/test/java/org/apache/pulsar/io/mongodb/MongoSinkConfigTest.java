@@ -18,13 +18,11 @@
  */
 package org.apache.pulsar.io.mongodb;
 
-import java.util.Map;
-import org.testng.annotations.Test;
-
+import static org.testng.Assert.assertEquals;
 import java.io.File;
 import java.io.IOException;
-
-import static org.testng.Assert.assertEquals;
+import java.util.Map;
+import org.testng.annotations.Test;
 
 public class MongoSinkConfigTest {
 

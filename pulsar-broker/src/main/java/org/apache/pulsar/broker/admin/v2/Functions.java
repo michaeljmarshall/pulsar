@@ -75,7 +75,7 @@ public class Functions extends AdminResource {
                                      final @FormDataParam("functionDetails") String functionDetailsJson) {
 
         return functions().registerFunction(tenant, namespace, functionName, uploadedInputStream, fileDetail,
-                functionPkgUrl, functionDetailsJson, httpAuthDataWrapper());
+                functionPkgUrl, functionDetailsJson, authentication());
     }
 
     @PUT
@@ -96,7 +96,7 @@ public class Functions extends AdminResource {
                                    final @FormDataParam("functionDetails") String functionDetailsJson) {
 
         return functions().updateFunction(tenant, namespace, functionName, uploadedInputStream, fileDetail,
-                functionPkgUrl, functionDetailsJson, httpAuthDataWrapper());
+                functionPkgUrl, functionDetailsJson, authentication());
     }
 
 
@@ -113,7 +113,7 @@ public class Functions extends AdminResource {
     public Response deregisterFunction(final @PathParam("tenant") String tenant,
                                        final @PathParam("namespace") String namespace,
                                        final @PathParam("functionName") String functionName) {
-        return functions().deregisterFunction(tenant, namespace, functionName, httpAuthDataWrapper());
+        return functions().deregisterFunction(tenant, namespace, functionName, authentication());
     }
 
     @GET
@@ -132,7 +132,7 @@ public class Functions extends AdminResource {
                                     final @PathParam("namespace") String namespace,
                                     final @PathParam("functionName") String functionName) throws IOException {
 
-        return functions().getFunctionInfo(tenant, namespace, functionName, httpAuthDataWrapper());
+        return functions().getFunctionInfo(tenant, namespace, functionName, authentication());
     }
 
     @GET
@@ -153,7 +153,7 @@ public class Functions extends AdminResource {
                                               final @PathParam("instanceId") String instanceId) throws IOException {
 
         return functions().getFunctionInstanceStatus(tenant, namespace, functionName, instanceId, uri.getRequestUri(),
-                httpAuthDataWrapper());
+                authentication());
     }
 
     @GET
@@ -171,7 +171,7 @@ public class Functions extends AdminResource {
                                       final @PathParam("namespace") String namespace,
                                       final @PathParam("functionName") String functionName) throws IOException {
         return functions().getFunctionStatusV2(
-                tenant, namespace, functionName, uri.getRequestUri(), httpAuthDataWrapper());
+                tenant, namespace, functionName, uri.getRequestUri(), authentication());
     }
 
     @GET
@@ -187,7 +187,7 @@ public class Functions extends AdminResource {
     @Path("/{tenant}/{namespace}")
     public Response listFunctions(final @PathParam("tenant") String tenant,
                                   final @PathParam("namespace") String namespace) {
-        return functions().listFunctions(tenant, namespace, httpAuthDataWrapper());
+        return functions().listFunctions(tenant, namespace, authentication());
     }
 
     @POST
@@ -210,7 +210,7 @@ public class Functions extends AdminResource {
                                     final @FormDataParam("dataStream") InputStream triggerStream,
                                     final @FormDataParam("topic") String topic) {
         return functions().triggerFunction(tenant, namespace, functionName,
-                triggerValue, triggerStream, topic, httpAuthDataWrapper());
+                triggerValue, triggerStream, topic, authentication());
     }
 
     @GET
@@ -229,7 +229,7 @@ public class Functions extends AdminResource {
                                      final @PathParam("namespace") String namespace,
                                      final @PathParam("functionName") String functionName,
                                      final @PathParam("key") String key) {
-        return functions().getFunctionState(tenant, namespace, functionName, key, httpAuthDataWrapper());
+        return functions().getFunctionState(tenant, namespace, functionName, key, authentication());
     }
 
     @POST
@@ -246,7 +246,7 @@ public class Functions extends AdminResource {
                                     final @PathParam("functionName") String functionName,
                                     final @PathParam("instanceId") String instanceId) {
         return functions().restartFunctionInstance(tenant, namespace, functionName,
-                instanceId, uri.getRequestUri(), httpAuthDataWrapper());
+                instanceId, uri.getRequestUri(), authentication());
     }
 
     @POST
@@ -259,7 +259,7 @@ public class Functions extends AdminResource {
     public Response restartFunction(final @PathParam("tenant") String tenant,
                                     final @PathParam("namespace") String namespace,
                                     final @PathParam("functionName") String functionName) {
-        return functions().restartFunctionInstances(tenant, namespace, functionName, httpAuthDataWrapper());
+        return functions().restartFunctionInstances(tenant, namespace, functionName, authentication());
     }
 
     @POST
@@ -274,7 +274,7 @@ public class Functions extends AdminResource {
                                  final @PathParam("functionName") String functionName,
                                  final @PathParam("instanceId") String instanceId) {
         return functions().stopFunctionInstance(tenant, namespace, functionName,
-                instanceId, uri.getRequestUri(), httpAuthDataWrapper());
+                instanceId, uri.getRequestUri(), authentication());
     }
 
     @POST
@@ -287,7 +287,7 @@ public class Functions extends AdminResource {
     public Response stopFunction(final @PathParam("tenant") String tenant,
                                  final @PathParam("namespace") String namespace,
                                  final @PathParam("functionName") String functionName) {
-        return functions().stopFunctionInstances(tenant, namespace, functionName, httpAuthDataWrapper());
+        return functions().stopFunctionInstances(tenant, namespace, functionName, authentication());
     }
 
     @POST
@@ -299,7 +299,7 @@ public class Functions extends AdminResource {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response uploadFunction(final @FormDataParam("data") InputStream uploadedInputStream,
                                    final @FormDataParam("path") String path) {
-        return functions().uploadFunction(uploadedInputStream, path, httpAuthDataWrapper());
+        return functions().uploadFunction(uploadedInputStream, path, authentication());
     }
 
     @GET
@@ -309,7 +309,7 @@ public class Functions extends AdminResource {
     )
     @Path("/download")
     public Response downloadFunction(final @QueryParam("path") String path) {
-        return functions().downloadFunction(path, httpAuthDataWrapper());
+        return functions().downloadFunction(path, authentication());
     }
 
     @GET

@@ -23,7 +23,6 @@ import static org.apache.pulsar.tests.integration.suites.PulsarTestSuite.retrySt
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
-
 import java.util.concurrent.TimeUnit;
 import lombok.Cleanup;
 import lombok.Data;

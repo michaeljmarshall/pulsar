@@ -38,7 +38,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.pulsar.broker.authentication.HttpAuthDataWrapper;
+import org.apache.pulsar.broker.authentication.Authentication;
 import org.apache.pulsar.client.admin.PulsarAdminException;
 import org.apache.pulsar.common.functions.FunctionConfig;
 import org.apache.pulsar.common.functions.FunctionDefinition;
@@ -78,7 +78,7 @@ public class FunctionsImpl extends ComponentImpl implements Functions<PulsarWork
                                  final FormDataContentDisposition fileDetail,
                                  final String functionPkgUrl,
                                  final FunctionConfig functionConfig,
-                                 final HttpAuthDataWrapper authDataWrapper) {
+                                 final Authentication authentication) {
 
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
@@ -97,7 +97,7 @@ public class FunctionsImpl extends ComponentImpl implements Functions<PulsarWork
             throw new RestException(Response.Status.BAD_REQUEST, "Function config is not provided");
         }
 
-        throwRestExceptionIfUnauthorizedForNamespace(tenant, namespace, functionName, "register", authDataWrapper);
+        throwRestExceptionIfUnauthorizedForNamespace(tenant, namespace, functionName, "register", authentication);
 
         try {
             // Check tenant exists
@@ -183,12 +183,12 @@ public class FunctionsImpl extends ComponentImpl implements Functions<PulsarWork
                 worker().getFunctionRuntimeManager()
                         .getRuntimeFactory()
                         .getAuthProvider().ifPresent(functionAuthProvider -> {
-                    if (authDataWrapper.getClientAuthenticationDataSource() != null) {
+                    if (authentication.getClientAuthenticationDataSource() != null) {
 
                         try {
                             Optional<FunctionAuthData> functionAuthData = functionAuthProvider
                                     .cacheAuthData(finalFunctionDetails,
-                                            authDataWrapper.getClientAuthenticationDataSource());
+                                            authentication.getClientAuthenticationDataSource());
 
                             functionAuthData.ifPresent(authData -> functionMetaDataBuilder.setFunctionAuthSpec(
                                     Function.FunctionAuthenticationSpec.newBuilder()
@@ -236,7 +236,7 @@ public class FunctionsImpl extends ComponentImpl implements Functions<PulsarWork
                                final FormDataContentDisposition fileDetail,
                                final String functionPkgUrl,
                                final FunctionConfig functionConfig,
-                               final HttpAuthDataWrapper authDataWrapper,
+                               final Authentication authentication,
                                UpdateOptionsImpl updateOptions) {
 
         if (!isWorkerServiceAvailable()) {
@@ -257,7 +257,7 @@ public class FunctionsImpl extends ComponentImpl implements Functions<PulsarWork
         }
 
         throwRestExceptionIfUnauthorizedForNamespace(tenant, namespace, functionName, "update",
-                authDataWrapper);
+                authentication);
 
         FunctionMetaDataManager functionMetaDataManager = worker().getFunctionMetaDataManager();
 
@@ -338,7 +338,7 @@ public class FunctionsImpl extends ComponentImpl implements Functions<PulsarWork
                 worker().getFunctionRuntimeManager()
                         .getRuntimeFactory()
                         .getAuthProvider().ifPresent(functionAuthProvider -> {
-                    if (authDataWrapper.getClientAuthenticationDataSource() != null && updateOptions
+                    if (authentication.getClientAuthenticationDataSource() != null && updateOptions
                             != null && updateOptions.isUpdateAuthData()) {
                         // get existing auth data if it exists
                         Optional<FunctionAuthData> existingFunctionAuthData = Optional.empty();
@@ -350,7 +350,7 @@ public class FunctionsImpl extends ComponentImpl implements Functions<PulsarWork
                                 try {
                                     Optional<FunctionAuthData> newFunctionAuthData = functionAuthProvider
                                             .updateAuthData(finalFunctionDetails, existingFunctionAuthData,
-                                                    authDataWrapper.getClientAuthenticationDataSource());
+                                                    authentication.getClientAuthenticationDataSource());
 
                             if (newFunctionAuthData.isPresent()) {
                                 functionMetaDataBuilder.setFunctionAuthSpec(
@@ -578,11 +578,11 @@ public class FunctionsImpl extends ComponentImpl implements Functions<PulsarWork
             final String componentName,
             final String instanceId,
             final URI uri,
-            final HttpAuthDataWrapper authDataWrapper) {
+            final Authentication authentication) {
 
         // validate parameters
         componentInstanceStatusRequestValidate(tenant, namespace, componentName, Integer.parseInt(instanceId),
-                authDataWrapper);
+                authentication);
 
         FunctionStatus.FunctionInstanceStatus.FunctionInstanceStatusData functionInstanceStatusData;
         try {
@@ -612,10 +612,10 @@ public class FunctionsImpl extends ComponentImpl implements Functions<PulsarWork
                                             final String namespace,
                                             final String componentName,
                                             final URI uri,
-                                            final HttpAuthDataWrapper authDataWrapper) {
+                                            final Authentication authentication) {
 
         // validate parameters
-        componentStatusRequestValidate(tenant, namespace, componentName, authDataWrapper);
+        componentStatusRequestValidate(tenant, namespace, componentName, authentication);
 
         FunctionStatus functionStatus;
         try {
@@ -637,17 +637,17 @@ public class FunctionsImpl extends ComponentImpl implements Functions<PulsarWork
                                              final InputStream uploadedInputStream,
                                              final boolean delete,
                                              URI uri,
-                                             final HttpAuthDataWrapper authDataWrapper) {
+                                             final Authentication authentication) {
 
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
         }
 
         if (worker().getWorkerConfig().isAuthorizationEnabled()) {
-            if (!isSuperUser(authDataWrapper)) {
+            if (!isSuperUser(authentication)) {
                 log.error("{}/{}/{} Client with role [{}] and originalPrincipal [{}] is not superuser to update on"
-                                + " worker leader {}", tenant, namespace, functionName, authDataWrapper.getClientRole(),
-                        authDataWrapper.getClientAuthenticationDataSource(),
+                                + " worker leader {}", tenant, namespace, functionName, authentication.getClientRole(),
+                        authentication.getClientAuthenticationDataSource(),
                         ComponentTypeUtils.toString(componentType));
                 throw new RestException(Response.Status.UNAUTHORIZED, "Client is not authorized to perform operation");
             }
@@ -693,26 +693,26 @@ public class FunctionsImpl extends ComponentImpl implements Functions<PulsarWork
     }
 
     @Override
-    public void reloadBuiltinFunctions(HttpAuthDataWrapper authDataWrapper)
+    public void reloadBuiltinFunctions(Authentication authentication)
         throws IOException {
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
         }
 
         if (worker().getWorkerConfig().isAuthorizationEnabled()
-                && !isSuperUser(authDataWrapper)) {
+                && !isSuperUser(authentication)) {
             throw new RestException(Response.Status.UNAUTHORIZED, "Client is not authorized to perform operation");
         }
         worker().getFunctionsManager().reloadFunctions(worker().getWorkerConfig());
     }
 
     @Override
-    public List<FunctionDefinition> getBuiltinFunctions(HttpAuthDataWrapper authDataWrapper) {
+    public List<FunctionDefinition> getBuiltinFunctions(Authentication authentication) {
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
         }
 
-        if (worker().getWorkerConfig().isAuthorizationEnabled() && !isSuperUser(authDataWrapper)) {
+        if (worker().getWorkerConfig().isAuthorizationEnabled() && !isSuperUser(authentication)) {
             throw new RestException(Response.Status.UNAUTHORIZED, "Client is not authorized to perform operation");
         }
         return this.worker().getFunctionsManager().getFunctionDefinitions();

@@ -18,11 +18,6 @@
  */
 package org.apache.pulsar.tests.integration.plugins;
 
-import org.apache.pulsar.tests.integration.containers.BrokerContainer;
-import org.apache.pulsar.tests.integration.containers.ProxyContainer;
-import org.apache.pulsar.tests.integration.suites.PulsarTestSuite;
-import org.testng.Assert;
-import org.testng.annotations.Test;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -34,6 +29,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.apache.pulsar.tests.integration.containers.BrokerContainer;
+import org.apache.pulsar.tests.integration.containers.ProxyContainer;
+import org.apache.pulsar.tests.integration.suites.PulsarTestSuite;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 public class TestAdditionalServlets extends PulsarTestSuite {
 

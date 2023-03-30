@@ -18,8 +18,8 @@
 # under the License.
 #
 
-import xml.etree.ElementTree as ET
 import re
+import xml.etree.ElementTree as ET
 from os.path import dirname, realpath, join
 
 # Derive the POM path from the current script location

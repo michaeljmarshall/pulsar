@@ -18,10 +18,6 @@
  */
 package org.apache.pulsar.io.elasticsearch;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.Optional;
-
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.security.CreateApiKeyRequest;
 import co.elastic.clients.elasticsearch.security.CreateApiKeyResponse;
@@ -29,6 +25,9 @@ import co.elastic.clients.elasticsearch.security.GetTokenRequest;
 import co.elastic.clients.elasticsearch.security.GetTokenResponse;
 import co.elastic.clients.elasticsearch.security.get_token.AccessTokenGrantType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.util.Map;
+import java.util.Optional;
 import org.apache.pulsar.io.elasticsearch.client.elastic.ElasticSearchJavaRestClient;
 import org.apache.pulsar.io.elasticsearch.client.opensearch.OpenSearchHighLevelRestClient;
 import org.opensearch.client.Request;

@@ -22,18 +22,17 @@
 """contextimpl.py: ContextImpl class that implements the Context interface
 """
 
+import json
+import os
+import pulsar
 import re
 import time
-import os
-import json
-import log
-
-import pulsar
-import util
-
-from prometheus_client import Summary
-from function_stats import Stats
 from functools import partial
+from prometheus_client import Summary
+
+import log
+import util
+from function_stats import Stats
 
 Log = log.Log
 

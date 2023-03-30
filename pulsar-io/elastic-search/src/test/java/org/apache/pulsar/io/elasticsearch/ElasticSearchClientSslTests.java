@@ -18,16 +18,14 @@
  */
 package org.apache.pulsar.io.elasticsearch;
 
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
+import java.io.IOException;
+import java.time.Duration;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
 import org.testcontainers.utility.MountableFile;
 import org.testng.annotations.Test;
-
-import java.io.IOException;
-import java.time.Duration;
-
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
 
 // see https://www.elastic.co/guide/en/elasticsearch/reference/current/security-settings.html#ssl-tls-settings
 public abstract class ElasticSearchClientSslTests extends ElasticSearchTestBase {

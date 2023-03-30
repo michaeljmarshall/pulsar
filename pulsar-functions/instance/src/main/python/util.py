@@ -21,14 +21,13 @@
 
 """util.py: Some misc utility functions
 """
-import os
-import inspect
-import sys
-import importlib
 import configparser
-
-from threading import Timer
+import importlib
+import inspect
+import os
+import sys
 from pulsar.functions import serde
+from threading import Timer
 
 import log
 

@@ -19,8 +19,8 @@
 #
 
 import pulsar
-from pulsar.schema import *
 import sys
+from pulsar.schema import *
 
 
 class MyExample(Record):

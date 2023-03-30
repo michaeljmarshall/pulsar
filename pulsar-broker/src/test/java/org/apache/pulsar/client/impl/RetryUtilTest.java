@@ -18,18 +18,16 @@
  */
 package org.apache.pulsar.client.impl;
 
-import org.apache.pulsar.client.util.RetryUtil;
-import org.apache.pulsar.common.util.FutureUtil;
-import org.testng.annotations.Test;
-
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import org.apache.pulsar.client.util.RetryUtil;
+import org.apache.pulsar.common.util.FutureUtil;
+import org.testng.annotations.Test;
 
 @Test(groups = "utils")
 public class RetryUtilTest {

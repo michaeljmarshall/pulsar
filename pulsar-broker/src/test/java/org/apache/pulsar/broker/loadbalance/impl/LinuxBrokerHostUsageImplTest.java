@@ -18,14 +18,14 @@
  */
 package org.apache.pulsar.broker.loadbalance.impl;
 
-import lombok.Cleanup;
-import org.testng.Assert;
-import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import lombok.Cleanup;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 public class LinuxBrokerHostUsageImplTest {
 

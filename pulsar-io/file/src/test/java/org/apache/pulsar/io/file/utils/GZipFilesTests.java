@@ -20,12 +20,10 @@ package org.apache.pulsar.io.file.utils;
 
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
-
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
-
 import org.testng.annotations.Test;
 
 public class GZipFilesTests {

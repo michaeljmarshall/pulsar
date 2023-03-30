@@ -22,7 +22,7 @@ import static org.apache.pulsar.broker.auth.MockedPulsarServiceBaseTest.retryStr
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.fail;
-
+import com.google.common.collect.Sets;
 import java.lang.reflect.Field;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
@@ -31,10 +31,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-
-import com.google.common.collect.Sets;
 import lombok.Cleanup;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bookkeeper.client.BKException;
 import org.apache.bookkeeper.client.BookKeeper;

@@ -66,8 +66,8 @@ import org.apache.bookkeeper.clients.exceptions.NamespaceNotFoundException;
 import org.apache.bookkeeper.clients.exceptions.StreamNotFoundException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.pulsar.broker.authentication.Authentication;
 import org.apache.pulsar.broker.authentication.AuthenticationDataSource;
-import org.apache.pulsar.broker.authentication.HttpAuthDataWrapper;
 import org.apache.pulsar.client.admin.PulsarAdminException;
 import org.apache.pulsar.client.admin.internal.FunctionsImpl;
 import org.apache.pulsar.client.api.Message;
@@ -456,14 +456,14 @@ public abstract class ComponentImpl implements Component<PulsarWorkerService> {
     public void deregisterFunction(final String tenant,
                                    final String namespace,
                                    final String componentName,
-                                   final HttpAuthDataWrapper authDataWrapper) {
+                                   final Authentication authentication) {
 
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
         }
 
         throwRestExceptionIfUnauthorizedForNamespace(tenant, namespace, componentName, "deregister",
-                authDataWrapper);
+                authentication);
 
         // validate parameters
         try {
@@ -531,14 +531,14 @@ public abstract class ComponentImpl implements Component<PulsarWorkerService> {
     public FunctionConfig getFunctionInfo(final String tenant,
                                           final String namespace,
                                           final String componentName,
-                                          final HttpAuthDataWrapper authDataWrapper) {
+                                          final Authentication authentication) {
 
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
         }
 
         throwRestExceptionIfUnauthorizedForNamespace(tenant, namespace, componentName, "get",
-                authDataWrapper);
+                authentication);
 
         // validate parameters
         try {
@@ -573,8 +573,8 @@ public abstract class ComponentImpl implements Component<PulsarWorkerService> {
                                      final String componentName,
                                      final String instanceId,
                                      final URI uri,
-                                     final HttpAuthDataWrapper authDataWrapper) {
-        changeFunctionInstanceStatus(tenant, namespace, componentName, instanceId, false, uri, authDataWrapper);
+                                     final Authentication authentication) {
+        changeFunctionInstanceStatus(tenant, namespace, componentName, instanceId, false, uri, authentication);
     }
 
     @Override
@@ -583,8 +583,8 @@ public abstract class ComponentImpl implements Component<PulsarWorkerService> {
                                       final String componentName,
                                       final String instanceId,
                                       final URI uri,
-                                      final HttpAuthDataWrapper authDataWrapper) {
-        changeFunctionInstanceStatus(tenant, namespace, componentName, instanceId, true, uri, authDataWrapper);
+                                      final Authentication authentication) {
+        changeFunctionInstanceStatus(tenant, namespace, componentName, instanceId, true, uri, authentication);
     }
 
     @Deprecated
@@ -596,11 +596,11 @@ public abstract class ComponentImpl implements Component<PulsarWorkerService> {
                                              final URI uri,
                                              final String clientRole,
                                              final AuthenticationDataSource clientAuthenticationDataHttps) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder()
+        Authentication authentication = Authentication.builder()
                 .clientRole(clientRole)
                 .clientAuthenticationDataSource(clientAuthenticationDataHttps)
                 .build();
-        changeFunctionInstanceStatus(tenant, namespace, componentName, instanceId, start, uri, authDataWrapper);
+        changeFunctionInstanceStatus(tenant, namespace, componentName, instanceId, start, uri, authentication);
     }
 
     public void changeFunctionInstanceStatus(final String tenant,
@@ -609,14 +609,14 @@ public abstract class ComponentImpl implements Component<PulsarWorkerService> {
                                              final String instanceId,
                                              final boolean start,
                                              final URI uri,
-                                             final HttpAuthDataWrapper authDataWrapper) {
+                                             final Authentication authentication) {
 
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
         }
 
         throwRestExceptionIfUnauthorizedForNamespace(tenant, namespace, componentName, "start/stop",
-                authDataWrapper);
+                authentication);
 
         // validate parameters
         try {
@@ -663,13 +663,13 @@ public abstract class ComponentImpl implements Component<PulsarWorkerService> {
                                         final String componentName,
                                         final String instanceId,
                                         final URI uri,
-                                        final HttpAuthDataWrapper authDataWrapper) {
+                                        final Authentication authentication) {
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
         }
 
         throwRestExceptionIfUnauthorizedForNamespace(tenant, namespace, componentName, "restart",
-                        authDataWrapper);
+                        authentication);
 
         // validate parameters
         try {
@@ -714,16 +714,16 @@ public abstract class ComponentImpl implements Component<PulsarWorkerService> {
     public void stopFunctionInstances(final String tenant,
                                       final String namespace,
                                       final String componentName,
-                                      final HttpAuthDataWrapper authDataWrapper) {
-        changeFunctionStatusAllInstances(tenant, namespace, componentName, false, authDataWrapper);
+                                      final Authentication authentication) {
+        changeFunctionStatusAllInstances(tenant, namespace, componentName, false, authentication);
     }
 
     @Override
     public void startFunctionInstances(final String tenant,
                                        final String namespace,
                                        final String componentName,
-                                       final HttpAuthDataWrapper authDataWrapper) {
-        changeFunctionStatusAllInstances(tenant, namespace, componentName, true, authDataWrapper);
+                                       final Authentication authentication) {
+        changeFunctionStatusAllInstances(tenant, namespace, componentName, true, authentication);
     }
 
     @Deprecated
@@ -733,22 +733,22 @@ public abstract class ComponentImpl implements Component<PulsarWorkerService> {
                                                  final boolean start,
                                                  final String clientRole,
                                                  final AuthenticationDataSource clientAuthenticationDataHttps) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole)
+        Authentication authentication = Authentication.builder().clientRole(clientRole)
                 .clientAuthenticationDataSource(clientAuthenticationDataHttps).build();
-        changeFunctionStatusAllInstances(tenant, namespace, componentName, start, authDataWrapper);
+        changeFunctionStatusAllInstances(tenant, namespace, componentName, start, authentication);
     }
 
     public void changeFunctionStatusAllInstances(final String tenant,
                                                  final String namespace,
                                                  final String componentName,
                                                  final boolean start,
-                                                 final HttpAuthDataWrapper authDataWrapper) {
+                                                 final Authentication authentication) {
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
         }
 
         throwRestExceptionIfUnauthorizedForNamespace(tenant, namespace, componentName, "start/stop",
-                        authDataWrapper);
+                        authentication);
 
         // validate parameters
         try {
@@ -793,13 +793,13 @@ public abstract class ComponentImpl implements Component<PulsarWorkerService> {
     public void restartFunctionInstances(final String tenant,
                                          final String namespace,
                                          final String componentName,
-                                         final HttpAuthDataWrapper authDataWrapper) {
+                                         final Authentication authentication) {
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
         }
 
         throwRestExceptionIfUnauthorizedForNamespace(tenant, namespace, componentName, "restart",
-                        authDataWrapper);
+                        authentication);
 
         // validate parameters
         try {
@@ -844,13 +844,13 @@ public abstract class ComponentImpl implements Component<PulsarWorkerService> {
                                               final String namespace,
                                               final String componentName,
                                               final URI uri,
-                                              final HttpAuthDataWrapper authDataWrapper) {
+                                              final Authentication authentication) {
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
         }
 
         throwRestExceptionIfUnauthorizedForNamespace(tenant, namespace, componentName, "get stats for",
-                        authDataWrapper);
+                        authentication);
 
         // validate parameters
         try {
@@ -899,13 +899,13 @@ public abstract class ComponentImpl implements Component<PulsarWorkerService> {
                               final String componentName,
                               final String instanceId,
                               final URI uri,
-                              final HttpAuthDataWrapper authDataWrapper) {
+                              final Authentication authentication) {
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
         }
 
         throwRestExceptionIfUnauthorizedForNamespace(tenant, namespace, componentName, "get stats for",
-                        authDataWrapper);
+                        authentication);
 
         // validate parameters
         try {
@@ -961,13 +961,13 @@ public abstract class ComponentImpl implements Component<PulsarWorkerService> {
     @Override
     public List<String> listFunctions(final String tenant,
                                       final String namespace,
-                                      final HttpAuthDataWrapper authDataWrapper) {
+                                      final Authentication authentication) {
 
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
         }
 
-        throwRestExceptionIfUnauthorizedForNamespace(tenant, namespace, null, "list", authDataWrapper);
+        throwRestExceptionIfUnauthorizedForNamespace(tenant, namespace, null, "list", authentication);
 
         // validate parameters
         try {
@@ -1009,13 +1009,13 @@ public abstract class ComponentImpl implements Component<PulsarWorkerService> {
     }
 
     @Override
-    public void reloadConnectors(HttpAuthDataWrapper authDataWrapper) {
+    public void reloadConnectors(Authentication authentication) {
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
         }
         if (worker().getWorkerConfig().isAuthorizationEnabled()) {
             // Only superuser has permission to do this operation.
-            if (!isSuperUser(authDataWrapper)) {
+            if (!isSuperUser(authentication)) {
                 throw new RestException(Status.UNAUTHORIZED, "This operation requires super-user access");
             }
         }
@@ -1033,13 +1033,13 @@ public abstract class ComponentImpl implements Component<PulsarWorkerService> {
                                   final String input,
                                   final InputStream uploadedInputStream,
                                   final String topic,
-                                  final HttpAuthDataWrapper authDataWrapper) {
+                                  final Authentication authentication) {
 
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
         }
 
-        throwRestExceptionIfUnauthorizedForNamespace(tenant, namespace, functionName, "trigger", authDataWrapper);
+        throwRestExceptionIfUnauthorizedForNamespace(tenant, namespace, functionName, "trigger", authentication);
 
         // validate parameters
         try {
@@ -1153,14 +1153,14 @@ public abstract class ComponentImpl implements Component<PulsarWorkerService> {
                                           final String namespace,
                                           final String functionName,
                                           final String key,
-                                          final HttpAuthDataWrapper authDataWrapper) {
+                                          final Authentication authentication) {
 
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
         }
 
         throwRestExceptionIfUnauthorizedForNamespace(tenant, namespace, functionName, "get state for",
-                authDataWrapper);
+                authentication);
 
         if (null == worker().getStateStoreAdminClient()) {
             throwStateStoreUnvailableResponse();
@@ -1230,7 +1230,7 @@ public abstract class ComponentImpl implements Component<PulsarWorkerService> {
                                  final String functionName,
                                  final String key,
                                  final FunctionState state,
-                                 final HttpAuthDataWrapper authDataWrapper) {
+                                 final Authentication authentication) {
 
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
@@ -1241,7 +1241,7 @@ public abstract class ComponentImpl implements Component<PulsarWorkerService> {
         }
 
         throwRestExceptionIfUnauthorizedForNamespace(tenant, namespace, functionName, "put state for",
-                authDataWrapper);
+                authentication);
 
         if (!key.equals(state.getKey())) {
             log.error("{}/{}/{} Bad putFunction Request, path key doesn't match key in json", tenant, namespace,
@@ -1298,14 +1298,14 @@ public abstract class ComponentImpl implements Component<PulsarWorkerService> {
 
     @Override
     public void uploadFunction(final InputStream uploadedInputStream, final String path,
-                               HttpAuthDataWrapper authDataWrapper) {
+                               Authentication authentication) {
 
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
         }
 
         if (worker().getWorkerConfig().isAuthorizationEnabled()
-                && !isSuperUser(authDataWrapper)) {
+                && !isSuperUser(authentication)) {
             throw new RestException(Status.UNAUTHORIZED, "Client is not authorized to perform operation");
         }
 
@@ -1340,13 +1340,13 @@ public abstract class ComponentImpl implements Component<PulsarWorkerService> {
 
     @Override
     public StreamingOutput downloadFunction(String tenant, String namespace, String componentName,
-                                            HttpAuthDataWrapper authDataWrapper, boolean transformFunction) {
+                                            Authentication authentication, boolean transformFunction) {
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
         }
 
         throwRestExceptionIfUnauthorizedForNamespace(tenant, namespace, componentName, "download package for",
-                authDataWrapper);
+                authentication);
 
         FunctionMetaDataManager functionMetaDataManager = worker().getFunctionMetaDataManager();
         if (!functionMetaDataManager.containsFunction(tenant, namespace, componentName)) {
@@ -1431,7 +1431,7 @@ public abstract class ComponentImpl implements Component<PulsarWorkerService> {
     }
 
     @Override
-    public StreamingOutput downloadFunction(final String path, final HttpAuthDataWrapper authDataWrapper) {
+    public StreamingOutput downloadFunction(final String path, final Authentication authentication) {
 
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
@@ -1446,9 +1446,9 @@ public abstract class ComponentImpl implements Component<PulsarWorkerService> {
                 String componentName = tokens[2];
 
                 throwRestExceptionIfUnauthorizedForNamespace(tenant, namespace, componentName, "download package for",
-                        authDataWrapper);
+                        authentication);
             } else {
-                if (!isSuperUser(authDataWrapper)) {
+                if (!isSuperUser(authentication)) {
                     throw new RestException(Status.UNAUTHORIZED, "Client is not authorized to perform operation");
                 }
             }
@@ -1587,32 +1587,32 @@ public abstract class ComponentImpl implements Component<PulsarWorkerService> {
     }
 
     /**
-     * @deprecated use {@link #isAuthorizedRole(String, String, HttpAuthDataWrapper)} instead.
+     * @deprecated use {@link #isAuthorizedRole(String, String, Authentication)} instead.
      */
     @Deprecated
     public boolean isAuthorizedRole(String tenant, String namespace, String clientRole,
                                     AuthenticationDataSource authenticationData) throws PulsarAdminException {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole)
+        Authentication authentication = Authentication.builder().clientRole(clientRole)
                 .clientAuthenticationDataSource(authenticationData).build();
-        return isAuthorizedRole(tenant, namespace, authDataWrapper);
+        return isAuthorizedRole(tenant, namespace, authentication);
     }
 
     public boolean isAuthorizedRole(String tenant, String namespace,
-                                    HttpAuthDataWrapper authDataWrapper) throws PulsarAdminException {
+                                    Authentication authentication) throws PulsarAdminException {
         if (worker().getWorkerConfig().isAuthorizationEnabled()) {
-            return allowFunctionOps(NamespaceName.get(tenant, namespace), authDataWrapper);
+            return allowFunctionOps(NamespaceName.get(tenant, namespace), authentication);
         } else {
             return true;
         }
     }
 
     public void throwRestExceptionIfUnauthorizedForNamespace(String tenant, String namespace, String componentName,
-                                                             String action, HttpAuthDataWrapper authDataWrapper) {
+                                                             String action, Authentication authentication) {
         try {
-            if (!isAuthorizedRole(tenant, namespace, authDataWrapper)) {
+            if (!isAuthorizedRole(tenant, namespace, authentication)) {
                 log.warn("{}/{}/{} Client with role [{}] and originalPrincipal [{}] is not authorized to {} {}",
-                        tenant, namespace, componentName, authDataWrapper.getClientRole(),
-                        authDataWrapper.getOriginalPrincipal(), action, ComponentTypeUtils.toString(componentType));
+                        tenant, namespace, componentName, authentication.getClientRole(),
+                        authentication.getOriginalPrincipal(), action, ComponentTypeUtils.toString(componentType));
                 throw new RestException(Status.UNAUTHORIZED, "Client is not authorized to perform operation");
             }
         } catch (PulsarAdminException e) {
@@ -1626,21 +1626,21 @@ public abstract class ComponentImpl implements Component<PulsarWorkerService> {
                                                   final String componentName,
                                                   final String clientRole,
                                                   final AuthenticationDataSource clientAuthenticationDataHttps) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole)
+        Authentication authentication = Authentication.builder().clientRole(clientRole)
                 .clientAuthenticationDataSource(clientAuthenticationDataHttps).build();
-        componentStatusRequestValidate(tenant, namespace, componentName, authDataWrapper);
+        componentStatusRequestValidate(tenant, namespace, componentName, authentication);
     }
 
     protected void componentStatusRequestValidate(final String tenant, final String namespace,
                                                   final String componentName,
-                                                  final HttpAuthDataWrapper authDataWrapper) {
+                                                  final Authentication authentication) {
         if (!isWorkerServiceAvailable()) {
             throw new RestException(Status.SERVICE_UNAVAILABLE,
                     "Function worker service is not done initializing. Please try again in a little while.");
         }
 
         throwRestExceptionIfUnauthorizedForNamespace(tenant, namespace, componentName, "get status for",
-                authDataWrapper);
+                authentication);
 
         // validate parameters
         try {
@@ -1676,18 +1676,18 @@ public abstract class ComponentImpl implements Component<PulsarWorkerService> {
                                                       final int instanceId,
                                                       final String clientRole,
                                                       final AuthenticationDataSource clientAuthenticationDataHttps) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole)
+        Authentication authentication = Authentication.builder().clientRole(clientRole)
                 .clientAuthenticationDataSource(clientAuthenticationDataHttps).build();
-        componentInstanceStatusRequestValidate(tenant, namespace, componentName, instanceId, authDataWrapper);
+        componentInstanceStatusRequestValidate(tenant, namespace, componentName, instanceId, authentication);
     }
 
     protected void componentInstanceStatusRequestValidate(final String tenant,
                                                           final String namespace,
                                                           final String componentName,
                                                           final int instanceId,
-                                                          final HttpAuthDataWrapper authDataWrapper) {
+                                                          final Authentication authentication) {
 
-        componentStatusRequestValidate(tenant, namespace, componentName, authDataWrapper);
+        componentStatusRequestValidate(tenant, namespace, componentName, authentication);
 
         FunctionMetaDataManager functionMetaDataManager = worker().getFunctionMetaDataManager();
         FunctionMetaData functionMetaData =
@@ -1702,19 +1702,19 @@ public abstract class ComponentImpl implements Component<PulsarWorkerService> {
         }
     }
 
-    public boolean isSuperUser(HttpAuthDataWrapper authDataWrapper) {
-        if (authDataWrapper.getClientRole() != null) {
+    public boolean isSuperUser(Authentication authentication) {
+        if (authentication.getClientRole() != null) {
             try {
-                return worker().getAuthorizationService().isSuperUser(authDataWrapper)
+                return worker().getAuthorizationService().isSuperUser(authentication)
                         .get(worker().getWorkerConfig().getMetadataStoreOperationTimeoutSeconds(), SECONDS);
             } catch (InterruptedException e) {
                 log.warn("Time-out {} sec while checking the role {} originalPrincipal {} is a super user role ",
                         worker().getWorkerConfig().getMetadataStoreOperationTimeoutSeconds(),
-                        authDataWrapper.getClientRole(), authDataWrapper.getOriginalPrincipal());
+                        authentication.getClientRole(), authentication.getOriginalPrincipal());
                 throw new RestException(Status.INTERNAL_SERVER_ERROR, e.getMessage());
             } catch (Exception e) {
                 log.warn("Failed verifying role {} originalPrincipal {} is a super user role",
-                        authDataWrapper.getClientRole(), authDataWrapper.getOriginalPrincipal(), e);
+                        authentication.getClientRole(), authentication.getOriginalPrincipal(), e);
                 throw new RestException(Status.INTERNAL_SERVER_ERROR, e.getMessage());
             }
         }
@@ -1723,31 +1723,31 @@ public abstract class ComponentImpl implements Component<PulsarWorkerService> {
 
     @Deprecated
     public boolean isSuperUser(String clientRole, AuthenticationDataSource authenticationData) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(clientRole)
+        Authentication authentication = Authentication.builder().clientRole(clientRole)
                 .clientAuthenticationDataSource(authenticationData).build();
-        return isSuperUser(authDataWrapper);
+        return isSuperUser(authentication);
     }
 
     @Deprecated
     public boolean allowFunctionOps(NamespaceName namespaceName, String role,
                                     AuthenticationDataSource authenticationData) {
-        HttpAuthDataWrapper authDataWrapper = HttpAuthDataWrapper.builder().clientRole(role)
+        Authentication authentication = Authentication.builder().clientRole(role)
                 .clientAuthenticationDataSource(authenticationData).build();
-        return allowFunctionOps(namespaceName, authDataWrapper);
+        return allowFunctionOps(namespaceName, authentication);
     }
 
-    public boolean allowFunctionOps(NamespaceName namespaceName, HttpAuthDataWrapper authDataWrapper) {
+    public boolean allowFunctionOps(NamespaceName namespaceName, Authentication authentication) {
         try {
             switch (componentType) {
                 case SINK:
-                    return worker().getAuthorizationService().allowSinkOpsAsync(namespaceName, authDataWrapper)
+                    return worker().getAuthorizationService().allowSinkOpsAsync(namespaceName, authentication)
                             .get(worker().getWorkerConfig().getMetadataStoreOperationTimeoutSeconds(), SECONDS);
                 case SOURCE:
-                    return worker().getAuthorizationService().allowSourceOpsAsync(namespaceName, authDataWrapper)
+                    return worker().getAuthorizationService().allowSourceOpsAsync(namespaceName, authentication)
                             .get(worker().getWorkerConfig().getMetadataStoreOperationTimeoutSeconds(), SECONDS);
                 case FUNCTION:
                 default:
-                    return worker().getAuthorizationService().allowFunctionOpsAsync(namespaceName, authDataWrapper)
+                    return worker().getAuthorizationService().allowFunctionOpsAsync(namespaceName, authentication)
                             .get(worker().getWorkerConfig().getMetadataStoreOperationTimeoutSeconds(), SECONDS);
             }
         } catch (InterruptedException e) {
@@ -1756,8 +1756,8 @@ public abstract class ComponentImpl implements Component<PulsarWorkerService> {
             throw new RestException(Status.INTERNAL_SERVER_ERROR, e.getMessage());
         } catch (Exception e) {
             log.warn("Admin-client with Role [{}] originalPrincipal [{}] failed to get function permissions for "
-                            + "namespace - {}. {}", authDataWrapper.getClientRole(),
-                    authDataWrapper.getOriginalPrincipal(), namespaceName, e.getMessage(), e);
+                            + "namespace - {}. {}", authentication.getClientRole(),
+                    authentication.getOriginalPrincipal(), namespaceName, e.getMessage(), e);
             throw new RestException(Status.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }

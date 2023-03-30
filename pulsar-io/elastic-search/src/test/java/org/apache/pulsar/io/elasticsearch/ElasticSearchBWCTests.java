@@ -18,16 +18,14 @@
  */
 package org.apache.pulsar.io.elasticsearch;
 
+import static org.testng.Assert.assertEquals;
 import com.google.common.collect.ImmutableMap;
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.pulsar.client.api.schema.GenericObject;
 import org.apache.pulsar.common.schema.SchemaType;
 import org.apache.pulsar.functions.api.Record;
 import org.testng.annotations.Test;
-
-import java.nio.charset.StandardCharsets;
-
-import static org.testng.Assert.assertEquals;
 
 public class ElasticSearchBWCTests {
 

@@ -24,7 +24,8 @@
 ## ./gen-yml-from-env.py <template yml file> [<template yml file>]
 ##
 
-import os, sys
+import os
+import sys
 import yaml
 
 INT_KEYS = [

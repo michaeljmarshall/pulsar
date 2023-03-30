@@ -18,6 +18,11 @@
  */
 package org.apache.pulsar.io.common;
 
+import java.nio.ByteBuffer;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pulsar.client.api.ConsumerBuilder;
@@ -33,12 +38,6 @@ import org.apache.pulsar.io.core.annotations.FieldDoc;
 import org.slf4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import java.nio.ByteBuffer;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 public class IOConfigUtilsTest {

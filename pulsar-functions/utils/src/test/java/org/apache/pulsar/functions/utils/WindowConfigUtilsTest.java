@@ -18,10 +18,9 @@
  */
 package org.apache.pulsar.functions.utils;
 
+import static org.testng.Assert.fail;
 import org.apache.pulsar.common.functions.WindowConfig;
 import org.testng.annotations.Test;
-
-import static org.testng.Assert.fail;
 
 /**
  * Unit test of {@link Exceptions}.

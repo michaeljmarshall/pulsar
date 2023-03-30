@@ -26,7 +26,6 @@ import static org.apache.pulsar.broker.loadbalance.extensions.models.UnloadDecis
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
-
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;

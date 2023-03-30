@@ -20,11 +20,11 @@
 # -*- encoding: utf-8 -*-
 
 ''' log.py '''
+import errno
 import logging
 import logging.config
 import logging.handlers
 import os
-import errno
 import pulsar
 import sys
 

@@ -20,7 +20,6 @@ package org.apache.pulsar.io.elasticsearch;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
-
 import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import org.apache.commons.lang3.tuple.Pair;

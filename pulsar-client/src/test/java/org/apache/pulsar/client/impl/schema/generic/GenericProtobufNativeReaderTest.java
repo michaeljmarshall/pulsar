@@ -18,6 +18,7 @@
  */
 package org.apache.pulsar.client.impl.schema.generic;
 
+import static org.testng.Assert.assertEquals;
 import com.google.protobuf.DynamicMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pulsar.client.api.schema.GenericRecord;
@@ -27,8 +28,6 @@ import org.apache.pulsar.client.schema.proto.Test.TestMessage;
 import org.apache.pulsar.common.schema.SchemaType;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import static org.testng.Assert.assertEquals;
 
 @Slf4j
 public class GenericProtobufNativeReaderTest {

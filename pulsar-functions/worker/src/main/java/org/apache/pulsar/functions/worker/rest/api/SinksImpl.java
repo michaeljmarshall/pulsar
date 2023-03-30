@@ -38,7 +38,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.pulsar.broker.authentication.HttpAuthDataWrapper;
+import org.apache.pulsar.broker.authentication.Authentication;
 import org.apache.pulsar.client.admin.PulsarAdminException;
 import org.apache.pulsar.common.functions.UpdateOptionsImpl;
 import org.apache.pulsar.common.functions.Utils;
@@ -77,7 +77,7 @@ public class SinksImpl extends ComponentImpl implements Sinks<PulsarWorkerServic
                              final FormDataContentDisposition fileDetail,
                              final String sinkPkgUrl,
                              final SinkConfig sinkConfig,
-                             final HttpAuthDataWrapper authDataWrapper) {
+                             final Authentication authentication) {
 
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
@@ -96,7 +96,7 @@ public class SinksImpl extends ComponentImpl implements Sinks<PulsarWorkerServic
             throw new RestException(Response.Status.BAD_REQUEST, "Sink config is not provided");
         }
 
-        throwRestExceptionIfUnauthorizedForNamespace(tenant, namespace, sinkName, "register", authDataWrapper);
+        throwRestExceptionIfUnauthorizedForNamespace(tenant, namespace, sinkName, "register", authentication);
 
         try {
             // Check tenant exists
@@ -183,12 +183,12 @@ public class SinksImpl extends ComponentImpl implements Sinks<PulsarWorkerServic
                 worker().getFunctionRuntimeManager()
                         .getRuntimeFactory()
                         .getAuthProvider().ifPresent(functionAuthProvider -> {
-                    if (authDataWrapper.getClientAuthenticationDataSource() != null) {
+                    if (authentication.getClientAuthenticationDataSource() != null) {
 
                         try {
                             Optional<FunctionAuthData> functionAuthData = functionAuthProvider
                                     .cacheAuthData(finalFunctionDetails,
-                                            authDataWrapper.getClientAuthenticationDataSource());
+                                            authentication.getClientAuthenticationDataSource());
 
                             functionAuthData.ifPresent(authData -> functionMetaDataBuilder.setFunctionAuthSpec(
                                     Function.FunctionAuthenticationSpec.newBuilder()
@@ -243,7 +243,7 @@ public class SinksImpl extends ComponentImpl implements Sinks<PulsarWorkerServic
                            final String sinkPkgUrl,
                            final SinkConfig sinkConfig,
                            UpdateOptionsImpl updateOptions,
-                           final HttpAuthDataWrapper authDataWrapper) {
+                           final Authentication authentication) {
 
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
@@ -262,7 +262,7 @@ public class SinksImpl extends ComponentImpl implements Sinks<PulsarWorkerServic
             throw new RestException(Response.Status.BAD_REQUEST, "Sink config is not provided");
         }
 
-        throwRestExceptionIfUnauthorizedForNamespace(tenant, namespace, sinkName, "update", authDataWrapper);
+        throwRestExceptionIfUnauthorizedForNamespace(tenant, namespace, sinkName, "update", authentication);
 
         FunctionMetaDataManager functionMetaDataManager = worker().getFunctionMetaDataManager();
 
@@ -343,7 +343,7 @@ public class SinksImpl extends ComponentImpl implements Sinks<PulsarWorkerServic
                 worker().getFunctionRuntimeManager()
                         .getRuntimeFactory()
                         .getAuthProvider().ifPresent(functionAuthProvider -> {
-                    if (authDataWrapper.getClientAuthenticationDataSource() != null && updateOptions != null
+                    if (authentication.getClientAuthenticationDataSource() != null && updateOptions != null
                             && updateOptions.isUpdateAuthData()) {
                         // get existing auth data if it exists
                         Optional<FunctionAuthData> existingFunctionAuthData = Optional.empty();
@@ -355,7 +355,7 @@ public class SinksImpl extends ComponentImpl implements Sinks<PulsarWorkerServic
                         try {
                             Optional<FunctionAuthData> newFunctionAuthData = functionAuthProvider
                                     .updateAuthData(finalFunctionDetails, existingFunctionAuthData,
-                                            authDataWrapper.getClientAuthenticationDataSource());
+                                            authentication.getClientAuthenticationDataSource());
 
                             if (newFunctionAuthData.isPresent()) {
                                 functionMetaDataBuilder.setFunctionAuthSpec(
@@ -609,11 +609,11 @@ public class SinksImpl extends ComponentImpl implements Sinks<PulsarWorkerServic
                           final String sinkName,
                           final String instanceId,
                           final URI uri,
-                          final HttpAuthDataWrapper authDataWrapper) {
+                          final Authentication authentication) {
 
         // validate parameters
         componentInstanceStatusRequestValidate(tenant, namespace, sinkName, Integer.parseInt(instanceId),
-                authDataWrapper);
+                authentication);
 
 
         SinkStatus.SinkInstanceStatus.SinkInstanceStatusData sinkInstanceStatusData;
@@ -634,10 +634,10 @@ public class SinksImpl extends ComponentImpl implements Sinks<PulsarWorkerServic
                                     final String namespace,
                                     final String componentName,
                                     final URI uri,
-                                    final HttpAuthDataWrapper authDataWrapper) {
+                                    final Authentication authentication) {
 
         // validate parameters
-        componentStatusRequestValidate(tenant, namespace, componentName, authDataWrapper);
+        componentStatusRequestValidate(tenant, namespace, componentName, authentication);
 
         SinkStatus sinkStatus;
         try {
@@ -656,8 +656,8 @@ public class SinksImpl extends ComponentImpl implements Sinks<PulsarWorkerServic
     public SinkConfig getSinkInfo(final String tenant,
                                   final String namespace,
                                   final String componentName,
-                                  final HttpAuthDataWrapper authDataWrapper) {
-        componentStatusRequestValidate(tenant, namespace, componentName, authDataWrapper);
+                                  final Authentication authentication) {
+        componentStatusRequestValidate(tenant, namespace, componentName, authentication);
         Function.FunctionMetaData functionMetaData =
                 worker().getFunctionMetaDataManager().getFunctionMetaData(tenant, namespace, componentName);
         return SinkConfigUtils.convertFromDetails(functionMetaData.getFunctionDetails());

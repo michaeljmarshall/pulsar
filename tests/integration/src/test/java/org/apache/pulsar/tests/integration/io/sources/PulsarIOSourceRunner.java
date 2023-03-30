@@ -21,9 +21,11 @@ package org.apache.pulsar.tests.integration.io.sources;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
-
+import com.google.gson.Gson;
 import java.util.Map;
-
+import lombok.Cleanup;
+import lombok.extern.slf4j.Slf4j;
+import net.jodah.failsafe.Failsafe;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.api.Consumer;
@@ -40,12 +42,6 @@ import org.apache.pulsar.tests.integration.io.PulsarIOTestRunner;
 import org.apache.pulsar.tests.integration.topologies.PulsarCluster;
 import org.apache.pulsar.tests.integration.topologies.PulsarTestBase;
 import org.testcontainers.containers.GenericContainer;
-
-import com.google.gson.Gson;
-
-import lombok.Cleanup;
-import lombok.extern.slf4j.Slf4j;
-import net.jodah.failsafe.Failsafe;
 
 @Slf4j
 public class PulsarIOSourceRunner extends PulsarIOTestRunner {

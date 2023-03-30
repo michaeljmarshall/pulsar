@@ -18,13 +18,13 @@
  */
 package org.apache.pulsar.broker.loadbalance.extensions.data;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import org.apache.pulsar.broker.lookup.LookupResult;
 import org.apache.pulsar.policies.data.loadbalancer.AdvertisedListener;
 import org.junit.Assert;
 import org.testng.annotations.Test;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 
 @Test(groups = "broker")
 public class BrokerLookupDataTest {

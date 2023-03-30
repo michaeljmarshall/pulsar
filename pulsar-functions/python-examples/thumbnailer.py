@@ -17,8 +17,9 @@
 # under the License.
 #
 
-from pulsar import Function
 from PIL import Image
+from pulsar import Function
+
 
 class Thumbnailer(Function):
 

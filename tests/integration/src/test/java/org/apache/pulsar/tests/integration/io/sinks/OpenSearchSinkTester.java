@@ -18,6 +18,8 @@
  */
 package org.apache.pulsar.tests.integration.io.sinks;
 
+import static org.testng.Assert.assertTrue;
+import java.util.Map;
 import java.util.Optional;
 import org.apache.http.HttpHost;
 import org.apache.pulsar.tests.integration.topologies.PulsarCluster;
@@ -30,10 +32,6 @@ import org.opensearch.client.RestClientBuilder;
 import org.opensearch.client.RestHighLevelClient;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
 import org.testcontainers.utility.DockerImageName;
-
-import java.util.Map;
-
-import static org.testng.Assert.assertTrue;
 
 public class OpenSearchSinkTester extends ElasticSearchSinkTester {
 

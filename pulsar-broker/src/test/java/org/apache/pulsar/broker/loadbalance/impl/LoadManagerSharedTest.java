@@ -18,11 +18,9 @@
  */
 package org.apache.pulsar.broker.loadbalance.impl;
 
+import com.google.common.collect.Sets;
 import java.util.HashSet;
 import java.util.Set;
-
-import com.google.common.collect.Sets;
-
 import org.apache.pulsar.common.util.collections.ConcurrentOpenHashMap;
 import org.apache.pulsar.common.util.collections.ConcurrentOpenHashSet;
 import org.testng.Assert;

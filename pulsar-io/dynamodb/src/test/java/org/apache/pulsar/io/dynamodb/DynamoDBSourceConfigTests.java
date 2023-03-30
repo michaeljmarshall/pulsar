@@ -20,7 +20,7 @@ package org.apache.pulsar.io.dynamodb;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
-
+import com.amazonaws.services.kinesis.clientlibrary.lib.worker.InitialPositionInStream;
 import java.io.File;
 import java.io.IOException;
 import java.time.ZoneOffset;
@@ -29,8 +29,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.amazonaws.services.kinesis.clientlibrary.lib.worker.InitialPositionInStream;
 import org.testng.annotations.Test;
 
 

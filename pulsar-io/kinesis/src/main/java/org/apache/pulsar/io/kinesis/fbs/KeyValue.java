@@ -2,10 +2,10 @@
 
 package org.apache.pulsar.io.kinesis.fbs;
 
-import java.nio.*;
-import java.lang.*;
-
-import com.google.flatbuffers.*;
+import com.google.flatbuffers.FlatBufferBuilder;
+import com.google.flatbuffers.Table;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 @SuppressWarnings("unused")
 public final class KeyValue extends Table {

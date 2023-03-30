@@ -37,7 +37,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.pulsar.broker.authentication.HttpAuthDataWrapper;
+import org.apache.pulsar.broker.authentication.Authentication;
 import org.apache.pulsar.client.admin.PulsarAdminException;
 import org.apache.pulsar.common.functions.UpdateOptionsImpl;
 import org.apache.pulsar.common.functions.Utils;
@@ -76,7 +76,7 @@ public class SourcesImpl extends ComponentImpl implements Sources<PulsarWorkerSe
                                final FormDataContentDisposition fileDetail,
                                final String sourcePkgUrl,
                                final SourceConfig sourceConfig,
-                               final HttpAuthDataWrapper authDataWrapper) {
+                               final Authentication authentication) {
 
         if (!isWorkerServiceAvailable()) {
             throwUnavailableException();
@@ -95,7 +95,7 @@ public class SourcesImpl extends ComponentImpl implements Sources<PulsarWorkerSe
             throw new RestException(Response.Status.BAD_REQUEST, "Source config is not provided");
         }
 
-        throwRestExceptionIfUnauthorizedForNamespace(tenant, namespace, sourceName, "register", authDataWrapper);
+        throwRestExceptionIfUnauthorizedForNamespace(tenant, namespace, sourceName, "register", authentication);
 
         try {
             // Check tenant exists
@@ -183,12 +183,12 @@ public class SourcesImpl extends ComponentImpl implements Sources<PulsarWorkerSe
                 worker().getFunctionRuntimeManager()
                         .getRuntimeFactory()
                         .getAuthProvider().ifPresent(functionAuthProvider -> {
-                    if (authDataWrapper.getClientAuthenticationDataSource() != null) {
+                    if (authentication.getClientAuthenticationDataSource() != null) {
 
                         try {
                             Optional<FunctionAuthData> functionAuthData = functionAuthProvider
                                     .cacheAuthData(finalFunctionDetails,
-                                            authDataWrapper.getClientAuthenticationDataSource());
+                                            authentication.getClientAuthenticationDataSource());
 
                             functionAuthData.ifPresent(authData -> functionMetaDataBuilder.setFunctionAuthSpec(
                                     Function.FunctionAuthenticationSpec.newBuilder()
@@ -236,7 +236,7 @@ public class SourcesImpl extends ComponentImpl implements Sources<PulsarWorkerSe
                                final FormDataContentDisposition fileDetail,
                                final String sourcePkgUrl,
                                final SourceConfig sourceConfig,
-                               final HttpAuthDataWrapper authDataWrapper,
+                               final Authentication authentication,
                                UpdateOptionsImpl updateOptions) {
 
         if (!isWorkerServiceAvailable()) {
@@ -256,7 +256,7 @@ public class SourcesImpl extends ComponentImpl implements Sources<PulsarWorkerSe
             throw new RestException(Response.Status.BAD_REQUEST, "Source config is not provided");
         }
 
-        throwRestExceptionIfUnauthorizedForNamespace(tenant, namespace, sourceName, "update", authDataWrapper);
+        throwRestExceptionIfUnauthorizedForNamespace(tenant, namespace, sourceName, "update", authentication);
 
         FunctionMetaDataManager functionMetaDataManager = worker().getFunctionMetaDataManager();
 
@@ -337,7 +337,7 @@ public class SourcesImpl extends ComponentImpl implements Sources<PulsarWorkerSe
                 worker().getFunctionRuntimeManager()
                         .getRuntimeFactory()
                         .getAuthProvider().ifPresent(functionAuthProvider -> {
-                    if (authDataWrapper.getClientAuthenticationDataSource() != null && updateOptions != null
+                    if (authentication.getClientAuthenticationDataSource() != null && updateOptions != null
                             && updateOptions.isUpdateAuthData()) {
                         // get existing auth data if it exists
                         Optional<FunctionAuthData> existingFunctionAuthData = Optional.empty();
@@ -349,7 +349,7 @@ public class SourcesImpl extends ComponentImpl implements Sources<PulsarWorkerSe
                         try {
                             Optional<FunctionAuthData> newFunctionAuthData = functionAuthProvider
                                     .updateAuthData(finalFunctionDetails, existingFunctionAuthData,
-                                            authDataWrapper.getClientAuthenticationDataSource());
+                                            authentication.getClientAuthenticationDataSource());
 
                             if (newFunctionAuthData.isPresent()) {
                                 functionMetaDataBuilder.setFunctionAuthSpec(
@@ -572,9 +572,9 @@ public class SourcesImpl extends ComponentImpl implements Sources<PulsarWorkerSe
                                         final String namespace,
                                         final String componentName,
                                         final URI uri,
-                                        final HttpAuthDataWrapper authDataWrapper) {
+                                        final Authentication authentication) {
         // validate parameters
-        componentStatusRequestValidate(tenant, namespace, componentName, authDataWrapper);
+        componentStatusRequestValidate(tenant, namespace, componentName, authentication);
 
         SourceStatus sourceStatus;
         try {
@@ -596,10 +596,10 @@ public class SourcesImpl extends ComponentImpl implements Sources<PulsarWorkerSe
                             final String sourceName,
                             final String instanceId,
                             final URI uri,
-                            final HttpAuthDataWrapper authDataWrapper) {
+                            final Authentication authentication) {
         // validate parameters
         componentInstanceStatusRequestValidate(tenant, namespace, sourceName, Integer.parseInt(instanceId),
-                authDataWrapper);
+                authentication);
 
         SourceStatus.SourceInstanceStatus.SourceInstanceStatusData sourceInstanceStatusData;
         try {
@@ -618,8 +618,8 @@ public class SourcesImpl extends ComponentImpl implements Sources<PulsarWorkerSe
     public SourceConfig getSourceInfo(final String tenant,
                                       final String namespace,
                                       final String componentName,
-                                      final HttpAuthDataWrapper authDataWrapper) {
-        componentStatusRequestValidate(tenant, namespace, componentName, authDataWrapper);
+                                      final Authentication authentication) {
+        componentStatusRequestValidate(tenant, namespace, componentName, authentication);
         Function.FunctionMetaData functionMetaData =
                 worker().getFunctionMetaDataManager().getFunctionMetaData(tenant, namespace, componentName);
         return SourceConfigUtils.convertFromDetails(functionMetaData.getFunctionDetails());
