@@ -27,6 +27,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertThrows;
 import static org.testng.Assert.assertTrue;
 import java.io.InputStream;
 import java.util.Collections;
@@ -37,6 +38,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import org.apache.distributedlog.api.namespace.Namespace;
 import org.apache.pulsar.broker.authentication.AuthenticationDataSource;
 import org.apache.pulsar.broker.authentication.HttpAuthDataWrapper;
@@ -287,8 +289,8 @@ public class FunctionsImplTest {
                 authenticationDataSource));
 
         // test role is null
-        assertFalse(functionImpl.isAuthorizedRole("test-tenant", "test-ns", null,
-                authenticationDataSource));
+        assertThrows(ExecutionException.class, () -> functionImpl.isAuthorizedRole("test-tenant",
+                "test-ns", null, authenticationDataSource));
     }
 
     @Test
