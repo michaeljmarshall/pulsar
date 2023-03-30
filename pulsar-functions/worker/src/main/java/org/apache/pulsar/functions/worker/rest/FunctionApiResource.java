@@ -57,12 +57,20 @@ public class FunctionApiResource implements Supplier<WorkerService> {
                 .build();
     }
 
+    /**
+     * @deprecated use {@link #httpAuthDataWrapper()} instead.
+     */
+    @Deprecated
     public String clientAppId() {
         return httpRequest != null
                 ? (String) httpRequest.getAttribute(AuthenticationFilter.AuthenticatedRoleAttributeName)
                 : null;
     }
 
+    /**
+     * @deprecated use {@link #httpAuthDataWrapper()} instead.
+     */
+    @Deprecated
     public AuthenticationDataSource clientAuthData() {
         return (AuthenticationDataSource) httpRequest.getAttribute(AuthenticationFilter.AuthenticatedDataAttributeName);
     }

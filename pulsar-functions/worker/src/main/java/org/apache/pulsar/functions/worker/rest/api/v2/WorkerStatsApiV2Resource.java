@@ -78,6 +78,10 @@ public class WorkerStatsApiV2Resource implements Supplier<WorkerService> {
                 .build();
     }
 
+    /**
+     * @deprecated use {@link HttpAuthDataWrapper} instead
+     */
+    @Deprecated
     public String clientAppId() {
         return httpRequest != null
                 ? (String) httpRequest.getAttribute(AuthenticationFilter.AuthenticatedRoleAttributeName)
