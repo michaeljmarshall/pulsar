@@ -27,22 +27,22 @@ import lombok.Builder;
  * to use only in HTTP authentication.
  */
 @Builder
-@lombok.Data
+@lombok.Value
 public class HttpAuthDataWrapper {
 
     /**
      * The original principal (or role) of the client. This is only supplied when the client is using the proxy.
      */
-    private final String originalPrincipal;
+    String originalPrincipal;
 
     /**
      * The client role. When the client is using the proxy, this is the role of the proxy or the role of the client,
      * depending on the type of authentication the proxy uses with the broker.
      */
-    private final String clientRole;
+    String clientRole;
 
     /**
      * The authentication data source used to generate the {@link #clientRole}.
      */
-    private final AuthenticationDataSource clientAuthenticationDataSource;
+    AuthenticationDataSource clientAuthenticationDataSource;
 }

@@ -106,7 +106,7 @@ public class WorkerApiV2Resource implements Supplier<WorkerService> {
     @Path("/cluster")
     @Produces(MediaType.APPLICATION_JSON)
     public List<WorkerInfo> getCluster() {
-        return workers().getCluster(clientAppId());
+        return workers().getCluster(httpAuthDataWrapper());
     }
 
     @GET
@@ -121,7 +121,7 @@ public class WorkerApiV2Resource implements Supplier<WorkerService> {
     @Path("/cluster/leader")
     @Produces(MediaType.APPLICATION_JSON)
     public WorkerInfo getClusterLeader() {
-        return workers().getClusterLeader(clientAppId());
+        return workers().getClusterLeader(httpAuthDataWrapper());
     }
 
     @GET
@@ -136,7 +136,7 @@ public class WorkerApiV2Resource implements Supplier<WorkerService> {
     @Path("/assignments")
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String, Collection<String>> getAssignments() {
-        return workers().getAssignments(clientAppId());
+        return workers().getAssignments(httpAuthDataWrapper());
     }
 
     @GET
@@ -151,7 +151,7 @@ public class WorkerApiV2Resource implements Supplier<WorkerService> {
     })
     @Path("/connectors")
     public List<ConnectorDefinition> getConnectorsList() throws IOException {
-        return workers().getListOfConnectors(clientAppId());
+        return workers().getListOfConnectors(httpAuthDataWrapper());
     }
 
     @PUT
