@@ -645,9 +645,6 @@ public abstract class PulsarWebResource {
         } catch (WebApplicationException wae) {
             return CompletableFuture.failedFuture(wae);
         }
-        if (ExtensibleLoadManagerImpl.isLoadManagerExtensionEnabled(config())) {
-            return CompletableFuture.completedFuture(nsBundle);
-        }
         return validateBundleOwnershipAsync(nsBundle, authoritative, readOnly)
                 .thenApply(__ -> nsBundle);
     }
@@ -726,6 +723,10 @@ public abstract class PulsarWebResource {
                         log.warn("Unable to get web service url");
                         throw new RestException(Status.PRECONDITION_FAILED,
                                 "Failed to find ownership for ServiceUnit:" + bundle.toString());
+                    }
+                    // If the load manager is extensible load manager, we don't need check the authoritative.
+                    if (ExtensibleLoadManagerImpl.isLoadManagerExtensionEnabled(config())) {
+                        return CompletableFuture.completedFuture(null);
                     }
                     return nsService.isServiceUnitOwnedAsync(bundle)
                             .thenAccept(owned -> {

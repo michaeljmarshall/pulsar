@@ -70,6 +70,7 @@ import org.apache.pulsar.broker.PulsarService;
 import org.apache.pulsar.broker.ServiceConfiguration;
 import org.apache.pulsar.broker.loadbalance.LeaderElectionService;
 import org.apache.pulsar.broker.loadbalance.extensions.BrokerRegistry;
+import org.apache.pulsar.broker.loadbalance.extensions.ExtensibleLoadManagerImpl;
 import org.apache.pulsar.broker.loadbalance.extensions.ExtensibleLoadManagerWrapper;
 import org.apache.pulsar.broker.loadbalance.extensions.LoadManagerContext;
 import org.apache.pulsar.broker.loadbalance.extensions.manager.StateChangeListener;
@@ -87,6 +88,7 @@ import org.apache.pulsar.client.api.Schema;
 import org.apache.pulsar.client.api.TableView;
 import org.apache.pulsar.common.naming.NamespaceBundle;
 import org.apache.pulsar.common.naming.NamespaceBundleFactory;
+import org.apache.pulsar.common.naming.NamespaceBundleSplitAlgorithm;
 import org.apache.pulsar.common.naming.NamespaceBundles;
 import org.apache.pulsar.common.naming.NamespaceName;
 import org.apache.pulsar.common.naming.TopicDomain;
@@ -96,7 +98,6 @@ import org.apache.pulsar.common.util.FutureUtil;
 import org.apache.pulsar.common.util.collections.ConcurrentOpenHashMap;
 import org.apache.pulsar.metadata.api.MetadataStoreException;
 import org.apache.pulsar.metadata.api.NotificationType;
-import org.apache.pulsar.metadata.api.coordination.LeaderElectionState;
 import org.apache.pulsar.metadata.api.extended.SessionEvent;
 
 @Slf4j
@@ -119,9 +120,9 @@ public class ServiceUnitStateChannelImpl implements ServiceUnitStateChannel {
     private final String lookupServiceAddress;
     private final ConcurrentOpenHashMap<String, CompletableFuture<Void>> cleanupJobs;
     private final StateChangeListeners stateChangeListeners;
-    private final LeaderElectionService leaderElectionService;
     private BrokerSelectionStrategy brokerSelector;
     private BrokerRegistry brokerRegistry;
+    private LeaderElectionService leaderElectionService;
     private TableView<ServiceUnitStateData> tableview;
     private Producer<ServiceUnitStateData> producer;
     private ScheduledFuture<?> monitorTask;
@@ -205,31 +206,7 @@ public class ServiceUnitStateChannelImpl implements ServiceUnitStateChannel {
         }
         this.maxCleanupDelayTimeInSecs = MAX_CLEAN_UP_DELAY_TIME_IN_SECS;
         this.minCleanupDelayTimeInSecs = MIN_CLEAN_UP_DELAY_TIME_IN_SECS;
-        this.leaderElectionService = new LeaderElectionService(
-                pulsar.getCoordinationService(), pulsar.getSafeWebServiceAddress(),
-                state -> {
-                    if (state == LeaderElectionState.Leading) {
-                        log.info("This broker:{} is the leader now.", lookupServiceAddress);
-                        this.monitorTask = this.pulsar.getLoadManagerExecutor()
-                                .scheduleWithFixedDelay(() -> {
-                                            try {
-                                                monitorOwnerships(brokerRegistry.getAvailableBrokersAsync()
-                                                        .get(inFlightStateWaitingTimeInMillis, MILLISECONDS));
-                                            } catch (Exception e) {
-                                                log.info("Failed to monitor the ownerships. will retry..", e);
-                                            }
-                                        },
-                                        ownershipMonitorDelayTimeInSecs, ownershipMonitorDelayTimeInSecs, SECONDS);
-                    } else {
-                        log.info("This broker:{} is a follower now.", lookupServiceAddress);
-                        if (monitorTask != null) {
-                            monitorTask.cancel(false);
-                            monitorTask = null;
-                            log.info("This previous leader broker:{} stopped the channel clean-up monitor",
-                                    lookupServiceAddress);
-                        }
-                    }
-                });
+
         Map<ServiceUnitState, AtomicLong> tmpOwnerLookUpCounters = new HashMap<>();
         Map<ServiceUnitState, Counters> tmpHandlerCounters = new HashMap<>();
         Map<EventType, Counters> tmpEventCounters = new HashMap<>();
@@ -246,6 +223,32 @@ public class ServiceUnitStateChannelImpl implements ServiceUnitStateChannel {
         this.channelState = Constructed;
     }
 
+    public void scheduleOwnershipMonitor() {
+        if (monitorTask == null) {
+            this.monitorTask = this.pulsar.getLoadManagerExecutor()
+                    .scheduleWithFixedDelay(() -> {
+                                try {
+                                    monitorOwnerships(brokerRegistry.getAvailableBrokersAsync()
+                                            .get(inFlightStateWaitingTimeInMillis, MILLISECONDS));
+                                } catch (Exception e) {
+                                    log.info("Failed to monitor the ownerships. will retry..", e);
+                                }
+                            },
+                            0, ownershipMonitorDelayTimeInSecs, SECONDS);
+            log.info("This leader broker:{} started the ownership monitor.",
+                    lookupServiceAddress);
+        }
+    }
+
+    public void cancelOwnershipMonitor() {
+        if (monitorTask != null) {
+            monitorTask.cancel(false);
+            monitorTask = null;
+            log.info("This previous leader broker:{} stopped the ownership monitor.",
+                    lookupServiceAddress);
+        }
+    }
+
     public synchronized void start() throws PulsarServerException {
         if (!validateChannelState(LeaderElectionServiceStarted, false)) {
             throw new IllegalStateException("Invalid channel state:" + channelState.name());
@@ -255,11 +258,15 @@ public class ServiceUnitStateChannelImpl implements ServiceUnitStateChannel {
         try {
             this.brokerRegistry = getBrokerRegistry();
             this.brokerRegistry.addListener(this::handleBrokerRegistrationEvent);
-            leaderElectionService.start();
-            this.channelState = LeaderElectionServiceStarted;
-            if (debug) {
-                log.info("Successfully started the channel leader election service.");
+            this.leaderElectionService = getLeaderElectionService();
+            var leader = leaderElectionService.readCurrentLeader().get(
+                    MAX_CHANNEL_OWNER_ELECTION_WAITING_TIME_IN_SECS, TimeUnit.SECONDS);
+            if (leader.isPresent()) {
+                log.info("Successfully found the channel leader:{}.", leader.get());
+            } else {
+                log.warn("Failed to find the channel leader.");
             }
+            this.channelState = LeaderElectionServiceStarted;
             brokerSelector = getBrokerSelector();
 
             if (producer != null) {
@@ -327,15 +334,17 @@ public class ServiceUnitStateChannelImpl implements ServiceUnitStateChannel {
         return new LeastResourceUsageWithWeight();
     }
 
+    @VisibleForTesting
+    protected LeaderElectionService getLeaderElectionService() {
+        return ((ExtensibleLoadManagerWrapper) pulsar.getLoadManager().get())
+                .get().getLeaderElectionService();
+    }
+
     public synchronized void close() throws PulsarServerException {
         channelState = Closed;
         boolean debug = debug();
         try {
-            leaderElectionService.close();
-            if (debug) {
-                log.info("Successfully closed the channel leader election service.");
-            }
-
+            leaderElectionService = null;
             if (tableview != null) {
                 tableview.close();
                 tableview = null;
@@ -382,7 +391,7 @@ public class ServiceUnitStateChannelImpl implements ServiceUnitStateChannel {
     }
 
     private boolean debug() {
-        return config.isLoadBalancerDebugModeEnabled() || log.isDebugEnabled();
+        return ExtensibleLoadManagerImpl.debug(config, log);
     }
 
     public CompletableFuture<Optional<String>> getChannelOwnerAsync() {
@@ -418,7 +427,7 @@ public class ServiceUnitStateChannelImpl implements ServiceUnitStateChannel {
         });
     }
 
-    private boolean isChannelOwner() {
+    public boolean isChannelOwner() {
         try {
             return isChannelOwnerAsync().get(
                     MAX_CHANNEL_OWNER_ELECTION_WAITING_TIME_IN_SECS, TimeUnit.SECONDS);
@@ -427,6 +436,25 @@ public class ServiceUnitStateChannelImpl implements ServiceUnitStateChannel {
             log.error(msg, e);
             throw new RuntimeException(msg, e);
         }
+    }
+
+    public boolean isOwner(String serviceUnit, String targetBroker) {
+        if (!validateChannelState(Started, true)) {
+            throw new IllegalStateException("Invalid channel state:" + channelState.name());
+        }
+        var ownerFuture = getOwnerAsync(serviceUnit);
+        if (!ownerFuture.isDone() || ownerFuture.isCompletedExceptionally() || ownerFuture.isCancelled()) {
+            return false;
+        }
+        var owner = ownerFuture.join();
+        if (owner.isPresent() && StringUtils.equals(targetBroker, owner.get())) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isOwner(String serviceUnit) {
+        return isOwner(serviceUnit, lookupServiceAddress);
     }
 
     public CompletableFuture<Optional<String>> getOwnerAsync(String serviceUnit) {
@@ -526,7 +554,8 @@ public class ServiceUnitStateChannelImpl implements ServiceUnitStateChannel {
         eventCounters.get(eventType).getTotal().incrementAndGet();
         String serviceUnit = split.serviceUnit();
         ServiceUnitStateData next =
-                new ServiceUnitStateData(Splitting, null, split.sourceBroker(), getNextVersionId(serviceUnit));
+                new ServiceUnitStateData(Splitting, null, split.sourceBroker(),
+                        split.splitServiceUnitToDestBroker(), getNextVersionId(serviceUnit));
         return pubAsync(serviceUnit, next).whenComplete((__, ex) -> {
             if (ex != null) {
                 eventCounters.get(eventType).getFailure().incrementAndGet();
@@ -777,22 +806,40 @@ public class ServiceUnitStateChannelImpl implements ServiceUnitStateChannel {
     }
 
     private CompletableFuture<Void> splitServiceUnit(String serviceUnit, ServiceUnitStateData data) {
-        // Write the child ownerships to BSC.
+        // Write the child ownerships to channel.
         long startTime = System.nanoTime();
         NamespaceService namespaceService = pulsar.getNamespaceService();
         NamespaceBundleFactory bundleFactory = namespaceService.getNamespaceBundleFactory();
         NamespaceBundle bundle = getNamespaceBundle(serviceUnit);
         CompletableFuture<Void> completionFuture = new CompletableFuture<>();
+        Map<String, Optional<String>> bundleToDestBroker = data.splitServiceUnitToDestBroker();
+        List<Long> boundaries = null;
+        NamespaceBundleSplitAlgorithm nsBundleSplitAlgorithm =
+                namespaceService.getNamespaceBundleSplitAlgorithmByName(
+                        config.getDefaultNamespaceBundleSplitAlgorithm());
+        if (bundleToDestBroker != null && bundleToDestBroker.size() == 2) {
+            Set<Long> boundariesSet = new HashSet<>();
+            String namespace = bundle.getNamespaceObject().toString();
+            bundleToDestBroker.forEach((bundleRange, destBroker) -> {
+                NamespaceBundle subBundle = bundleFactory.getBundle(namespace, bundleRange);
+                boundariesSet.add(subBundle.getKeyRange().lowerEndpoint());
+                boundariesSet.add(subBundle.getKeyRange().upperEndpoint());
+            });
+            boundaries = new ArrayList<>(boundariesSet);
+            nsBundleSplitAlgorithm = NamespaceBundleSplitAlgorithm.SPECIFIED_POSITIONS_DIVIDE_ALGO;
+        }
         final AtomicInteger counter = new AtomicInteger(0);
-        this.splitServiceUnitOnceAndRetry(namespaceService, bundleFactory, bundle, serviceUnit, data,
-                counter, startTime, completionFuture);
+        this.splitServiceUnitOnceAndRetry(namespaceService, bundleFactory, nsBundleSplitAlgorithm,
+                bundle, boundaries, serviceUnit, data, counter, startTime, completionFuture);
         return completionFuture;
     }
 
     @VisibleForTesting
     protected void splitServiceUnitOnceAndRetry(NamespaceService namespaceService,
                                                 NamespaceBundleFactory bundleFactory,
+                                                NamespaceBundleSplitAlgorithm algorithm,
                                                 NamespaceBundle bundle,
+                                                List<Long> boundaries,
                                                 String serviceUnit,
                                                 ServiceUnitStateData data,
                                                 AtomicInteger counter,
@@ -800,7 +847,8 @@ public class ServiceUnitStateChannelImpl implements ServiceUnitStateChannel {
                                                 CompletableFuture<Void> completionFuture) {
         CompletableFuture<List<NamespaceBundle>> updateFuture = new CompletableFuture<>();
 
-        pulsar.getNamespaceService().getSplitBoundary(bundle, null).thenAccept(splitBundlesPair -> {
+        namespaceService.getSplitBoundary(bundle, algorithm, boundaries)
+                .thenAccept(splitBundlesPair -> {
             // Split and updateNamespaceBundles. Update may fail because of concurrent write to Zookeeper.
             if (splitBundlesPair == null) {
                 String msg = format("Bundle %s not found under namespace", serviceUnit);
@@ -870,7 +918,8 @@ public class ServiceUnitStateChannelImpl implements ServiceUnitStateChannel {
                 log.warn("Failed to update bundle range in metadata store. Retrying {} th / {} limit",
                         counter.get(), NamespaceService.BUNDLE_SPLIT_RETRY_LIMIT, ex);
                 pulsar.getExecutor().schedule(() -> splitServiceUnitOnceAndRetry(namespaceService, bundleFactory,
-                                bundle, serviceUnit, data, counter, startTime, completionFuture), 100, MILLISECONDS);
+                        algorithm, bundle, boundaries, serviceUnit, data, counter, startTime, completionFuture),
+                        100, MILLISECONDS);
             } else if (throwable instanceof IllegalArgumentException) {
                 completionFuture.completeExceptionally(throwable);
             } else {
@@ -922,9 +971,11 @@ public class ServiceUnitStateChannelImpl implements ServiceUnitStateChannel {
                             + " Active cleanup job count:{}",
                     broker, cleanupJobs.size());
         } else {
-            log.info("Failed to cancel the ownership cleanup for broker:{}."
-                            + " There was no scheduled cleanup job. Active cleanup job count:{}",
-                    broker, cleanupJobs.size());
+            if (debug()) {
+                log.info("No needs to cancel the ownership cleanup for broker:{}."
+                                + " There was no scheduled cleanup job. Active cleanup job count:{}",
+                        broker, cleanupJobs.size());
+            }
         }
     }
 
@@ -960,6 +1011,8 @@ public class ServiceUnitStateChannelImpl implements ServiceUnitStateChannel {
                                     log.error("Failed to run the cleanup job for the broker {}, "
                                                     + "totalCleanupErrorCnt:{}.",
                                             broker, totalCleanupErrorCnt.incrementAndGet(), e);
+                                } finally {
+                                    cleanupJobs.remove(broker);
                                 }
                             }
                             , delayed);
@@ -1028,7 +1081,11 @@ public class ServiceUnitStateChannelImpl implements ServiceUnitStateChannel {
 
         double cleanupTime = TimeUnit.NANOSECONDS
                 .toMillis((System.nanoTime() - startTime));
-        // TODO: clean load data stores
+
+        // clean load data stores
+        getContext().topBundleLoadDataStore().removeAsync(broker);
+        getContext().brokerLoadDataStore().removeAsync(broker);
+
         log.info("Completed a cleanup for the inactive broker:{} in {} ms. "
                         + "Cleaned up orphan service units: orphanServiceUnitCleanupCnt:{}, "
                         + "approximate cleanupErrorCnt:{}, metrics:{} ",
@@ -1037,7 +1094,7 @@ public class ServiceUnitStateChannelImpl implements ServiceUnitStateChannel {
                 orphanServiceUnitCleanupCnt,
                 totalCleanupErrorCntStart - totalCleanupErrorCnt.get(),
                 printCleanupMetrics());
-        cleanupJobs.remove(broker);
+
     }
 
     private Optional<ServiceUnitStateData> getRollForwardStateData(
@@ -1094,7 +1151,11 @@ public class ServiceUnitStateChannelImpl implements ServiceUnitStateChannel {
             return;
         }
 
-        log.info("Started the ownership monitor run for activeBrokerCount:{}", brokers.size());
+        var debug = debug();
+        if (debug) {
+            log.info("Started the ownership monitor run for activeBrokerCount:{}", brokers.size());
+        }
+
         long startTime = System.nanoTime();
         Set<String> inactiveBrokers = new HashSet<>();
         Set<String> activeBrokers = new HashSet<>(brokers);
@@ -1170,27 +1231,32 @@ public class ServiceUnitStateChannelImpl implements ServiceUnitStateChannel {
             log.error("Failed to flush the in-flight messages.", e);
         }
 
+        boolean cleaned = false;
         if (serviceUnitTombstoneCleanupCnt > 0) {
             this.totalServiceUnitTombstoneCleanupCnt += serviceUnitTombstoneCleanupCnt;
+            cleaned = true;
         }
 
         if (orphanServiceUnitCleanupCnt > 0) {
             this.totalOrphanServiceUnitCleanupCnt += orphanServiceUnitCleanupCnt;
+            cleaned = true;
         }
 
-        double monitorTime = TimeUnit.NANOSECONDS
-                .toMillis((System.nanoTime() - startTime));
-        log.info("Completed the ownership monitor run in {} ms. "
-                        + "Scheduled cleanups for inactive brokers:{}. inactiveBrokerCount:{}. "
-                        + "Published cleanups for orphan service units, orphanServiceUnitCleanupCnt:{}. "
-                        + "Tombstoned semi-terminal state service units, serviceUnitTombstoneCleanupCnt:{}. "
-                        + "Approximate cleanupErrorCnt:{}, metrics:{}. ",
-                monitorTime,
-                inactiveBrokers, inactiveBrokers.size(),
-                orphanServiceUnitCleanupCnt,
-                serviceUnitTombstoneCleanupCnt,
-                totalCleanupErrorCntStart - totalCleanupErrorCnt.get(),
-                printCleanupMetrics());
+        if (debug || cleaned) {
+            double monitorTime = TimeUnit.NANOSECONDS
+                    .toMillis((System.nanoTime() - startTime));
+            log.info("Completed the ownership monitor run in {} ms. "
+                            + "Scheduled cleanups for inactive brokers:{}. inactiveBrokerCount:{}. "
+                            + "Published cleanups for orphan service units, orphanServiceUnitCleanupCnt:{}. "
+                            + "Tombstoned semi-terminal state service units, serviceUnitTombstoneCleanupCnt:{}. "
+                            + "Approximate cleanupErrorCnt:{}, metrics:{}. ",
+                    monitorTime,
+                    inactiveBrokers, inactiveBrokers.size(),
+                    orphanServiceUnitCleanupCnt,
+                    serviceUnitTombstoneCleanupCnt,
+                    totalCleanupErrorCntStart - totalCleanupErrorCnt.get(),
+                    printCleanupMetrics());
+        }
 
     }
 
@@ -1323,5 +1389,9 @@ public class ServiceUnitStateChannelImpl implements ServiceUnitStateChannel {
     @Override
     public Set<Map.Entry<String, ServiceUnitStateData>> getOwnershipEntrySet() {
         return tableview.entrySet();
+    }
+
+    public static ServiceUnitStateChannel get(PulsarService pulsar) {
+        return ExtensibleLoadManagerImpl.get(pulsar.getLoadManager().get()).getServiceUnitStateChannel();
     }
 }
