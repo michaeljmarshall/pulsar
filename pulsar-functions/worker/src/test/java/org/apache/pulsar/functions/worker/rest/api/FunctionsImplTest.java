@@ -32,13 +32,13 @@ import static org.testng.Assert.assertTrue;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import org.apache.distributedlog.api.namespace.Namespace;
 import org.apache.pulsar.broker.authentication.AuthenticationDataSource;
 import org.apache.pulsar.broker.authentication.HttpAuthDataWrapper;
@@ -59,6 +59,7 @@ import org.apache.pulsar.common.policies.data.FunctionInstanceStatsImpl;
 import org.apache.pulsar.common.policies.data.FunctionStatsImpl;
 import org.apache.pulsar.common.policies.data.Policies;
 import org.apache.pulsar.common.policies.data.TenantInfo;
+import org.apache.pulsar.common.util.RestException;
 import org.apache.pulsar.functions.api.Context;
 import org.apache.pulsar.functions.instance.InstanceConfig;
 import org.apache.pulsar.functions.instance.JavaInstanceRunnable;
@@ -104,6 +105,7 @@ public class FunctionsImplTest {
     private static final int parallelism = 1;
     private static final String workerId = "worker-0";
     private static final String superUser = "superUser";
+    private static final String proxyUser = "proxyUser";
 
     private PulsarWorkerService mockedWorkerService;
     private PulsarAdmin mockedPulsarAdmin;
@@ -250,7 +252,11 @@ public class FunctionsImplTest {
         FunctionsImpl functionImpl = spy(new FunctionsImpl(() -> mockedWorkerService));
         WorkerConfig workerConfig = new WorkerConfig();
         workerConfig.setAuthorizationEnabled(true);
-        workerConfig.setSuperUserRoles(Collections.singleton(superUser));
+        HashSet<String> superUsers = new HashSet<>();
+        superUsers.add(superUser);
+        superUsers.add(proxyUser);
+        workerConfig.setSuperUserRoles(superUsers);
+        workerConfig.setProxyRoles(Collections.singleton(proxyUser));
         // TODO remove mocking by relying on TestPulsarResources. Can't do now because this commit needs to be
         //  cherry picked back.
         PulsarResources pulsarResources = mock(PulsarResources.class);
@@ -289,8 +295,28 @@ public class FunctionsImplTest {
                 authenticationDataSource));
 
         // test role is null
-        assertThrows(ExecutionException.class, () -> functionImpl.isAuthorizedRole("test-tenant",
+        assertThrows(RestException.class, () -> functionImpl.isAuthorizedRole("test-tenant",
                 "test-ns", null, authenticationDataSource));
+
+        // test proxy user with no original principal
+        assertFalse(functionImpl.isAuthorizedRole("test-tenant", "test-ns",
+                HttpAuthDataWrapper.builder().clientRole(proxyUser).build()));
+
+        // test proxy user with tenant admin original principal
+        assertTrue(functionImpl.isAuthorizedRole("test-tenant", "test-ns",
+                HttpAuthDataWrapper.builder().clientRole(proxyUser).originalPrincipal("tenant-admin").build()));
+
+        // test proxy user with non admin user
+        assertFalse(functionImpl.isAuthorizedRole("test-tenant", "test-ns",
+                HttpAuthDataWrapper.builder().clientRole(proxyUser).originalPrincipal("test-non-admin-user").build()));
+
+        // test proxy user with allow function action
+        assertTrue(functionImpl.isAuthorizedRole("test-tenant", "test-ns",
+                HttpAuthDataWrapper.builder().clientRole(proxyUser).originalPrincipal("test-function-user").build()));
+
+        // test non-proxy user passing original principal
+        assertFalse(functionImpl.isAuthorizedRole("test-tenant", "test-ns",
+                HttpAuthDataWrapper.builder().clientRole("nobody").originalPrincipal("test-non-admin-user").build()));
     }
 
     @Test
