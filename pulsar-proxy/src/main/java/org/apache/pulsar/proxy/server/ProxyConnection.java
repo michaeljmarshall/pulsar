@@ -187,7 +187,7 @@ public class ProxyConnection extends PulsarHandler {
         super.channelInactive(ctx);
 
         if (directProxyHandler != null) {
-            directProxyHandler.close();
+            //directProxyHandler.close();
             directProxyHandler = null;
         }
 
