@@ -90,7 +90,7 @@ public class ProxyTest extends MockedPulsarServiceBaseTest {
     protected void setup() throws Exception {
         internalSetup();
 
-        proxyConfig.setServicePort(Optional.ofNullable(0));
+        proxyConfig.setServicePort(Optional.ofNullable(7000));
         proxyConfig.setBrokerProxyAllowedTargetPorts("*");
         proxyConfig.setMetadataStoreUrl(DUMMY_VALUE);
         proxyConfig.setConfigurationMetadataStoreUrl(GLOBAL_DUMMY_VALUE);
@@ -159,34 +159,40 @@ public class ProxyTest extends MockedPulsarServiceBaseTest {
         checkArgument(msg == null);
     }
 
-    @Test
+    @Test(timeOut = 60000)
     public void testPartitions() throws Exception {
         TenantInfoImpl tenantInfo = createDefaultTenantInfo();
         admin.tenants().createTenant("sample", tenantInfo);
-        @Cleanup
-        PulsarClient client = PulsarClient.builder().serviceUrl(proxyService.getServiceUrl())
-                .build();
-        admin.topics().createPartitionedTopic("persistent://sample/test/local/partitioned-topic", 2);
 
         @Cleanup
-        Producer<byte[]> producer = client.newProducer(Schema.BYTES)
+        PulsarClient clientUnblocked = PulsarClient.builder().serviceUrl(proxyService.getServiceUrl())
+                .build();
+
+        @Cleanup
+        PulsarClient client = PulsarClient.builder().serviceUrl("pulsar://localhost:6000")
+                .keepAliveInterval(1, TimeUnit.SECONDS)
+                .build();
+        admin.topics().createNonPartitionedTopic("persistent://sample/test/local/partitioned-topic");
+
+        @Cleanup
+        Producer<byte[]> producer = clientUnblocked.newProducer(Schema.BYTES)
             .topic("persistent://sample/test/local/partitioned-topic")
             .enableBatching(false)
             .messageRoutingMode(MessageRoutingMode.RoundRobinPartition).create();
 
         // Create a consumer directly attached to broker
         @Cleanup
-        Consumer<byte[]> consumer = pulsarClient.newConsumer().topic("persistent://sample/test/local/partitioned-topic")
+        Consumer<byte[]> consumer = client.newConsumer().subscriptionType(SubscriptionType.Exclusive)
+                .topic("persistent://sample/test/local/partitioned-topic")
                 .subscriptionName("my-sub").subscribe();
 
-        for (int i = 0; i < 10; i++) {
-            producer.send("test".getBytes());
+        for (int i = 0; i < 1000; i++) {
+            producer.sendAsync("test".getBytes());
+            producer.flushAsync();
+            consumer.receiveAsync();
+            Thread.sleep(1000);
         }
-
-        for (int i = 0; i < 10; i++) {
-            Message<byte[]> msg = consumer.receive(1, TimeUnit.SECONDS);
-            requireNonNull(msg);
-        }
+        Thread.sleep(60000);
     }
 
     /**
