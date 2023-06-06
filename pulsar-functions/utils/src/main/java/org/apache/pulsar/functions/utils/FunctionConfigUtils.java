@@ -729,10 +729,6 @@ public class FunctionConfigUtils {
             throw new IllegalArgumentException("Windowing is not supported in Go function yet");
         }
 
-        if (functionConfig.getMaxMessageRetries() != null && functionConfig.getMaxMessageRetries() >= 0) {
-            throw new IllegalArgumentException("Message retries not yet supported in Go function");
-        }
-
         if (functionConfig.getRetainKeyOrdering() != null && functionConfig.getRetainKeyOrdering()) {
             throw new IllegalArgumentException("Retain Key Orderering not yet supported in Go function");
         }

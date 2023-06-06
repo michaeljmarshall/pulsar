@@ -341,6 +341,11 @@ func (gi *goInstance) setupConsumer() (chan pulsar.ConsumerMessage, error) {
 					Properties:        properties,
 					Type:              subscriptionType,
 					MessageChannel:    channel,
+					DLQ: &pulsar.DLQPolicy{
+						// GetMaxMessageRetries is int32 and MaxDeliveries is uint32
+						MaxDeliveries:   uint32(funcDetails.RetryDetails.GetMaxMessageRetries()),
+						DeadLetterTopic: funcDetails.RetryDetails.GetDeadLetterTopic(),
+					},
 				})
 			} else {
 				consumer, err = gi.client.Subscribe(pulsar.ConsumerOptions{
