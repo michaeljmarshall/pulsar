@@ -371,7 +371,10 @@ public class AuthorizationProducerConsumerTest extends ProducerConsumerBase {
     public void testSubscriberPermissionRequired() throws Exception {
         log.info("-- Starting {} test --", methodName);
 
+        // Simplify test by skipping configuration of topic level policies
+        conf.setTopicLevelPoliciesEnabled(false);
         conf.setAuthorizationProvider(PulsarAuthorizationProvider.class.getName());
+        conf.setGrantImplicitPermissionOnSubscription(false);
         setup();
 
         final String tenantRole = "tenant-role";
@@ -401,17 +404,14 @@ public class AuthorizationProducerConsumerTest extends ProducerConsumerBase {
 
         superAdmin.clusters().createCluster("test", ClusterData.builder().serviceUrl(brokerUrl.toString()).build());
 
-        // Initialize cluster and configure namespace to require permission on subscription
+        // Initialize cluster and create namespace and topic
         superAdmin.tenants().createTenant("my-property",
                 new TenantInfoImpl(Sets.newHashSet(tenantRole), Sets.newHashSet("test")));
         superAdmin.namespaces().createNamespace(namespace, Sets.newHashSet("test"));
-        assertFalse(superAdmin.namespaces().getPermissionOnSubscriptionRequired(namespace), "Defaults to false.");
-        superAdmin.namespaces().setPermissionOnSubscriptionRequired(namespace, true);
         tenantAdmin.topics().createNonPartitionedTopic(topicName);
         tenantAdmin.topics().grantPermission(topicName, subscriptionRole,
                 Collections.singleton(AuthAction.consume));
         assertNull(superAdmin.namespaces().getPublishRate(namespace));
-        assertTrue(superAdmin.namespaces().getPermissionOnSubscriptionRequired(namespace));
         replacePulsarClient(PulsarClient.builder()
                 .serviceUrl(pulsar.getBrokerServiceUrl())
                 .authentication(authentication));
