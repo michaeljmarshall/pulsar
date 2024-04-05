@@ -127,7 +127,7 @@ public class WebSocketProxyConfiguration implements PulsarConfiguration {
                     See Namespaces#grantPermissionOnSubscription in the Java Admin API Client for details on granting
                     permission.
                     """)
-    private boolean allowImplicitSubscriptionAuthenticationPermission = true;
+    private boolean grantImplicitPermissionOnSubscription = true;
 
     @FieldContext(doc = "Proxy authentication settings used to connect to brokers")
     private String brokerClientAuthenticationPlugin;
