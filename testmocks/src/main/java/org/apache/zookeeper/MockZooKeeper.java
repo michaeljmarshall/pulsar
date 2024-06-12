@@ -891,6 +891,12 @@ public class MockZooKeeper extends ZooKeeper {
             } else if (!tree.containsKey(path)) {
                 throw new KeeperException.NoNodeException(path);
             } else if (hasChildren(path)) {
+                List<String> children = getChildren(path, false);
+                if (children != null) {
+                    log.error("Tried to delete {}, but it has these children: {}", path, String.join(", ", children));
+                } else {
+                    log.error("Tried to delete {}, but there were children and not there are not", path);
+                }
                 throw new KeeperException.NotEmptyException(path);
             }
 
