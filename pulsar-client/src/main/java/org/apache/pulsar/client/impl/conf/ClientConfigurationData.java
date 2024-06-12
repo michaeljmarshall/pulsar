@@ -22,9 +22,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.opentelemetry.api.OpenTelemetry;
 import io.swagger.annotations.ApiModelProperty;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.security.PrivateKey;
+import java.security.cert.Certificate;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
@@ -165,6 +168,24 @@ public class ClientConfigurationData implements Serializable, Cloneable {
             value = "Path to the trusted TLS certificate file."
     )
     private String tlsTrustCertsFilePath = null;
+
+    @ApiModelProperty(
+            name = "tlsPrivateKey",
+            value = "The private key for the client certificate. Only used when tlsTrustStoreStream is non-null."
+    )
+    private PrivateKey tlsPrivateKey = null;
+
+    @ApiModelProperty(
+            name = "tlsCertificates",
+            value = "Client certificate chain. Only used when tlsTrustStoreStream is non-null."
+    )
+    private Certificate[] tlsCertificates = null;
+
+    @ApiModelProperty(
+            name = "tlsTrustStoreStream",
+            value = "Input-stream of the trust store. When configured, the tlsPrivateKey and tlsCertificates are used."
+    )
+    private InputStream tlsTrustStoreStream = null;
 
     @ApiModelProperty(
             name = "tlsAllowInsecureConnection",
